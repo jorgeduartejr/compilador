@@ -6,6 +6,7 @@
 #define YYSTYPE atributos
 
 using namespace std;
+int var_temp_qnt;
 
 struct atributos
 {
@@ -15,6 +16,7 @@ struct atributos
 
 int yylex(void);
 void yyerror(string);
+string gentempcode();
 %}
 
 %token TK_NUM
@@ -48,13 +50,20 @@ COMANDO 	: E ';'
 
 E 			: E '+' E
 			{
-				$$.traducao = $1.traducao + $3.traducao + "\ta = b + c;\n";
+				$$.label = gentempcode();
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
+					" = " + $1.label + " + " + $3.label + ";\n";
 			}
 			| TK_NUM
-			{
-				$$.traducao = "\ta = " + $1.traducao + ";\n";
+			{	
+				$$.label = gentempcode();
+				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
 			}
 			| TK_ID
+			{
+				$$.label = gentempcode();
+				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
+			}	
 			;
 
 %%
@@ -63,8 +72,14 @@ E 			: E '+' E
 
 int yyparse();
 
+string gentempcode(){
+	var_temp_qnt++;
+	return "t" + std::to_string(var_temp_qnt);
+}
+
 int main( int argc, char* argv[] )
 {
+	var_temp_qnt = 0;
 	yyparse();
 
 	return 0;
