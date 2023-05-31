@@ -88,26 +88,40 @@ COMANDO 	: E ';'
 			
 E 			: E '+' E
 			{
-				cout << $1.tipo << endl;
-				cout << $3.tipo << endl;
+				if($1.tipo != $3.tipo)
+				{
+					yyerror("Operacao ilegal, causa: tipos diferentes"); //checa se os tipos sao iguais e da erro se for diferente
+				}
 				$$.label = gentempcode();
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 					" = " + $1.label + " + " + $3.label + ";\n";
 			}
 			| E '-' E
 			{
+				if($1.tipo != $3.tipo)
+				{
+					yyerror("Operacao ilegal, causa: tipos diferentes"); //checa se os tipos sao iguais e da erro se for diferente
+				}
 				$$.label = gentempcode();
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 					" = " + $1.label + " - " + $3.label + ";\n";
 			}
 			| E '*' E
 			{
+				if($1.tipo != $3.tipo)
+				{
+					yyerror("Operacao ilegal, causa: tipos diferentes"); //checa se os tipos sao iguais e da erro se for diferente
+				}
 				$$.label = gentempcode();
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 					" = " + $1.label + " * " + $3.label + ";\n";
 			}
 			| E '/' E
 			{
+				if($1.tipo != $3.tipo)
+				{
+					yyerror("Operacao ilegal, causa: tipos diferentes"); //checa se os tipos sao iguais e da erro se for diferente
+				}
 				$$.label = gentempcode();
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 					" = " + $1.label + " / " + $3.label + ";\n";
