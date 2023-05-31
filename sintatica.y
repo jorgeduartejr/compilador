@@ -29,7 +29,7 @@ void yyerror(string);
 string gentempcode();
 %}
 
-%token TK_NUM
+%token TK_NUM TK_REAL
 %token TK_MAIN TK_ID TK_TIPO_INT TK_TIPO_FLOAT
 %token TK_FIM TK_ERROR
 
@@ -67,7 +67,13 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "int";
-				
+				for(int i = 0; i < tabelaSimbolos.size(); i++)
+				{
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
+					{
+						yyerror("Variavel ja declarada");
+					}
+				}
 				tabelaSimbolos.push_back(valor);
 
 				$$.traducao = "";
@@ -78,7 +84,13 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "float";
-				
+				for(int i = 0; i < tabelaSimbolos.size(); i++)
+				{
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
+					{
+						yyerror("Variavel ja declarada");
+					}
+				}
 				tabelaSimbolos.push_back(valor);
 
 				$$.traducao = "";
@@ -86,56 +98,98 @@ COMANDO 	: E ';'
 			}
 			;
 			
-E 			: E '+' E
+E 			: E '+' E //vou colocar o tipo do S1 como default, ou seja a temp sera int caso S1 seja int
 			{
-				if($1.tipo != $3.tipo)
+				if($1.tipo != $3.tipo) //default = tipo do S1 mas talvez precise mudar
 				{
-					yyerror("Operacao ilegal, causa: tipos diferentes"); //checa se os tipos sao iguais e da erro se for diferente
+					if($1.tipo == "int" && $3.tipo == "float") 
+					{
+						$1.label = "(float)" + $1.label;
+						$1.tipo = "float";
+					}
+					else if($1.tipo == "float" && $3.tipo == "int")
+					{
+						$3.label = "(float)" + $3.label;
+						$3.tipo = "float";
+					}
 				}
 				$$.label = gentempcode();
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $1.tipo + "\t" + $$.label +
 					" = " + $1.label + " + " + $3.label + ";\n";
 			}
 			| E '-' E
 			{
-				if($1.tipo != $3.tipo)
+				if($1.tipo != $3.tipo) //default = tipo do S1 mas talvez precise mudar
 				{
-					yyerror("Operacao ilegal, causa: tipos diferentes"); //checa se os tipos sao iguais e da erro se for diferente
+					if($1.tipo == "int" && $3.tipo == "float") 
+					{
+						$3.label = "(int)" + $3.label;
+						$3.tipo = "int";
+					}
+					else if($1.tipo == "float" && $3.tipo == "int")
+					{
+						$3.label = "(float)" + $3.label;
+						$3.tipo = "float";
+					}
 				}
 				$$.label = gentempcode();
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $1.tipo + "\t" + $$.label +
 					" = " + $1.label + " - " + $3.label + ";\n";
 			}
 			| E '*' E
 			{
-				if($1.tipo != $3.tipo)
+				if($1.tipo != $3.tipo) //default = tipo do S1 mas talvez precise mudar
 				{
-					yyerror("Operacao ilegal, causa: tipos diferentes"); //checa se os tipos sao iguais e da erro se for diferente
+					if($1.tipo == "int" && $3.tipo == "float") 
+					{
+						$3.label = "(int)" + $3.label;
+						$3.tipo = "int";
+					}
+					else if($1.tipo == "float" && $3.tipo == "int")
+					{
+						$3.label = "(float)" + $3.label;
+						$3.tipo = "float";
+					}
 				}
 				$$.label = gentempcode();
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $1.tipo + "\t" + $$.label +
 					" = " + $1.label + " * " + $3.label + ";\n";
 			}
 			| E '/' E
 			{
-				if($1.tipo != $3.tipo)
+				if($1.tipo != $3.tipo) //default = tipo do S1 mas talvez precise mudar
 				{
-					yyerror("Operacao ilegal, causa: tipos diferentes"); //checa se os tipos sao iguais e da erro se for diferente
+					if($1.tipo == "int" && $3.tipo == "float") 
+					{
+						$3.label = "(int)" + $3.label;
+						$3.tipo = "int";
+					}
+					else if($1.tipo == "float" && $3.tipo == "int")
+					{
+						$3.label = "(float)" + $3.label;
+						$3.tipo = "float";
+					}
 				}
 				$$.label = gentempcode();
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $1.tipo + "\t" + $$.label +
 					" = " + $1.label + " / " + $3.label + ";\n";
 			}
 			| TK_ID '=' E
 			{
 
-				$$.traducao = $1.traducao + $3.traducao +  "\t" +  $1.label + " = " + $3.label + ";\n";
+				$$.traducao = $1.traducao + $3.traducao +  "\t" + $3.tipo + "\t" +  $1.label + " = " + $3.label + ";\n";
 			}
 			| TK_NUM
 			{	
 				$$.tipo = "int";
 				$$.label = gentempcode();
-				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
+				$$.traducao = "\t"+ $$.tipo + "\t" + $$.label + " = " + $1.label + ";\n";
+			}
+			| TK_REAL
+			{
+				$$.tipo = "float";
+				$$.label = gentempcode();
+				$$.traducao = "\t"+ $$.tipo + "\t" + $$.label + " = " + $1.label + ";\n";
 			}
 			| TK_ID
 			{
@@ -153,7 +207,7 @@ E 			: E '+' E
 
 				$$.tipo = variavel.tipoVariavel;
 				$$.label = gentempcode();
-				$$.traducao = "\t" +  $$.label + " = " + $1.label + ";\n";
+				$$.traducao = "\t" + $$.tipo + "\t" + $$.label + " = " + $1.label + ";\n";
 			}	
 			;
 
