@@ -123,8 +123,8 @@ E 			: E '+' E //vou colocar o tipo do S1 como default, ou seja a temp sera int 
 				{
 					if($1.tipo == "int" && $3.tipo == "float") 
 					{
-						$3.label = "(int)" + $3.label;
-						$3.tipo = "int";
+						$1.label = "(float)" + $1.label;
+						$1.tipo = "float";
 					}
 					else if($1.tipo == "float" && $3.tipo == "int")
 					{
@@ -142,8 +142,8 @@ E 			: E '+' E //vou colocar o tipo do S1 como default, ou seja a temp sera int 
 				{
 					if($1.tipo == "int" && $3.tipo == "float") 
 					{
-						$3.label = "(int)" + $3.label;
-						$3.tipo = "int";
+						$1.label = "(float)" + $1.label;
+						$1.tipo = "float";
 					}
 					else if($1.tipo == "float" && $3.tipo == "int")
 					{
@@ -161,8 +161,8 @@ E 			: E '+' E //vou colocar o tipo do S1 como default, ou seja a temp sera int 
 				{
 					if($1.tipo == "int" && $3.tipo == "float") 
 					{
-						$3.label = "(int)" + $3.label;
-						$3.tipo = "int";
+						$1.label = "(float)" + $1.label;
+						$1.tipo = "float";
 					}
 					else if($1.tipo == "float" && $3.tipo == "int")
 					{
