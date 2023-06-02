@@ -30,7 +30,7 @@ string gentempcode();
 %}
 
 %token TK_NUM TK_REAL
-%token TK_MAIN TK_ID TK_TIPO_INT TK_TIPO_FLOAT
+%token TK_MAIN TK_ID TK_TIPO_INT TK_TIPO_FLOAT TK_TIPO_CHAR
 %token TK_FIM TK_ERROR
 
 %start S
@@ -79,6 +79,40 @@ COMANDO 	: E ';'
 				$$.traducao = "";
 				$$.label = "";
 			}
+			| TK_TIPO_INT TK_ID '=' E ';'
+			{
+				TIPO_SIMBOLO valor;
+				valor.nomeVariavel = $2.label;
+				valor.tipoVariavel = "int";
+				for(int i = 0; i < tabelaSimbolos.size(); i++)
+				{
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
+					{
+						yyerror("Variavel ja declarada");
+					}
+				}
+				tabelaSimbolos.push_back(valor);
+
+				$$.traducao = $4.traducao + "\t" + $2.tipo + "\t" + $2.label + " = " + $4.label + ";\n";
+				$$.label = "";
+			}
+			| TK_TIPO_FLOAT TK_ID '=' E ';'
+			{
+				TIPO_SIMBOLO valor;
+				valor.nomeVariavel = $2.label;
+				valor.tipoVariavel = "float";
+				for(int i = 0; i < tabelaSimbolos.size(); i++)
+				{
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
+					{
+						yyerror("Variavel ja declarada");
+					}
+				}
+				tabelaSimbolos.push_back(valor);
+
+				$$.traducao = $4.traducao + "\t" + $2.tipo + "\t" + $2.label + " = " + $4.label + ";\n";
+				$$.label = "";
+			}
 			| TK_TIPO_FLOAT TK_ID ';'
 			{
 				TIPO_SIMBOLO valor;
@@ -96,10 +130,30 @@ COMANDO 	: E ';'
 				$$.traducao = "";
 				$$.label = "";
 			}
+			| TK_TIPO_CHAR TK_ID ';' // verificar isso aqui depois, pq pode ser que seja com vector
+			{
+				TIPO_SIMBOLO valor;
+				valor.nomeVariavel = $2.label;
+				valor.tipoVariavel = "char";
+				for(int i = 0; i < tabelaSimbolos.size(); i++)
+				{
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
+					{
+						yyerror("Variavel ja declarada");
+					}
+				}
+				tabelaSimbolos.push_back(valor);
+
+				$$.traducao = "";
+				$$.label = "";
+			}
 			;
 			
 E 			: E '+' E //vou colocar o tipo do S1 como default, ou seja a temp sera int caso S1 seja int
 			{
+				// int a = 1;
+
+
 				if($1.tipo != $3.tipo) //default = tipo do S1 mas talvez precise mudar
 				{
 					if($1.tipo == "int" && $3.tipo == "float") 

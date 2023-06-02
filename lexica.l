@@ -25,6 +25,8 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "float"		{return TK_TIPO_FLOAT;}
 
+"char"		{return TK_TIPO_CHAR;}
+
 [(){}[\];,]	{ return *yytext; }
 
 [+\-*/]		{ return *yytext; }
