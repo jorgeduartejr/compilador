@@ -200,7 +200,11 @@ COMANDO 	: E ';'
 			}
 			;
 			
-E 			: E '+' E //vou colocar o tipo float como default
+E 			: '('E')'
+            {
+			    $$ = $2;
+			}
+            | E '+' E //vou colocar o tipo float como default
 			{
 			
 			
