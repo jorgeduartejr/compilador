@@ -41,7 +41,7 @@ string gentempcode();
 
 S 			: TK_TIPO_INT TK_MAIN '(' ')' BLOCO
 			{
-				cout << "/*Compilador FOCA*/\n" << "#include <iostream>\n#include<string.h>\n#include<stdio.h>\nint main(void)\n{\n" << $5.traducao << "\treturn 0;\n}" << endl; 
+				cout << "/*Compilador FOCA*/\n" << "#include <iostream>\n#include<string.h>\n#include<math.h>\n#include<stdio.h>\nint main(void)\n{\n" << $5.traducao << "\treturn 0;\n}" << endl; 
 			}
 			;
 
@@ -200,11 +200,11 @@ COMANDO 	: E ';'
 			}
 			;
 			
-E 			: E '+' E //vou colocar o tipo do S1 como default, ou seja a temp sera int caso S1 seja int
+E 			: E '+' E //vou colocar o tipo float como default
 			{
 			
 			
-				if($1.tipo != $3.tipo) //default = tipo do S1 mas talvez precise mudar
+				if($1.tipo != $3.tipo) //default = tipo float mas talvez precise mudar
 				{
 					if($1.tipo == "int" && $3.tipo == "float") 
 					{
@@ -223,7 +223,7 @@ E 			: E '+' E //vou colocar o tipo do S1 como default, ou seja a temp sera int 
 			}
 			| E '-' E
 			{
-				if($1.tipo != $3.tipo) //default = tipo do S1 mas talvez precise mudar
+				if($1.tipo != $3.tipo) //default = tipo float mas talvez precise mudar
 				{
 					if($1.tipo == "int" && $3.tipo == "float") 
 					{
@@ -242,7 +242,7 @@ E 			: E '+' E //vou colocar o tipo do S1 como default, ou seja a temp sera int 
 			}
 			| E '*' E
 			{
-				if($1.tipo != $3.tipo) //default = tipo do S1 mas talvez precise mudar
+				if($1.tipo != $3.tipo) //default = tipo float mas talvez precise mudar
 				{
 					if($1.tipo == "int" && $3.tipo == "float") 
 					{
@@ -261,7 +261,7 @@ E 			: E '+' E //vou colocar o tipo do S1 como default, ou seja a temp sera int 
 			}
 			| E '/' E
 			{
-				if($1.tipo != $3.tipo) //default = tipo do S1 mas talvez precise mudar
+				if($1.tipo != $3.tipo) //default = tipo float mas talvez precise mudar
 				{
 					if($1.tipo == "int" && $3.tipo == "float") 
 					{
@@ -278,9 +278,23 @@ E 			: E '+' E //vou colocar o tipo do S1 como default, ou seja a temp sera int 
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $1.tipo + "\t" + $$.label +
 					" = " + $1.label + " / " + $3.label + ";\n";
 			}
+			| E '^' E
+			{
+				if($1.tipo != "float" || $3.tipo != "float") // talvez precise de typecasting na hora da igualacao em caso de inteiro 
+				{                                            // porem o compilador C aparentemente trunca isso ai entao da pra tankar
+					
+						$1.label = "(float)" + $1.label;
+						$1.tipo = "float";
+						$3.label = "(float)" + $3.label;
+						$3.tipo = "float";
+					
+				}
+				$$.label = gentempcode();
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $1.tipo + "\t" + $$.label +
+					" = " "powf("+ $1.label + "," + $3.label + ")" + ";\n";
+			}
 			| TK_ID '=' E
 			{
-
 				$$.traducao = $1.traducao + $3.traducao +  "\t" + $3.tipo + "\t" +  $1.label + " = " + $3.label + ";\n";
 			}
 			| TK_NUM

@@ -6,7 +6,6 @@
 ESPACO [ \t]
 DIGITO [0-9]
 LETRA [A-Za-z_]
-
 DELIM {ESPACO}+
 NUM {DIGITO}+
 REAL {NUM}+("."{NUM}+)?
@@ -32,7 +31,7 @@ ID {LETRA}({LETRA}|{NUM})*
 
 [(){}[\];,]	{ return *yytext; }
 
-[+\-*/]		{ return *yytext; }
+[+\-*/^]	{ return *yytext; }
 
 "="         { return '='; }
 
