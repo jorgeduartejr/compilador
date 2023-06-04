@@ -9,9 +9,9 @@ LETRA [A-Za-z_]
 DELIM {ESPACO}+
 NUM {DIGITO}+
 REAL {NUM}+("."{NUM}+)?
+ID {LETRA}({LETRA}|{NUM})*
 CHAR \'({LETRA}|{NUM})\'
 BOOL \'(true|false)\'
-ID {LETRA}({LETRA}|{NUM})*
 
 %%
 
@@ -41,11 +41,28 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "="         { return '='; }
 
+"=="        { return TK_IG; }
+
+"!="        { return TK_DIF; }
+
+">="        { return TK_MAIG; }
+
+"<="        { return TK_MEIG; }
+
+">"         { return TK_MAIOR; }
+
+"<"         { return TK_MENOR; }
+
+"&&"        { return TK_AND; }
+
+"||"        { return TK_OR; }
+
+
 {NUM}		{ yylval.label = yytext; return TK_NUM; }
 {ID}		{ yylval.label = yytext; return TK_ID; }
 {REAL}      { yylval.label = yytext; return TK_REAL; }
 {CHAR}      { yylval.label = yytext; return TK_CHAR; }
 {BOOL}      { yylval.label = yytext; return TK_BOOL; }
-.			{ *yytext; }
+
 
 %%

@@ -30,9 +30,10 @@ void yyerror(string);
 string gentempcode();
 %}
 
-%token TK_NUM TK_REAL TK_BOOL TK_CHAR
+%token TK_NUM TK_REAL TK_BOOL TK_CHAR TK_OP_REL
 %token TK_MAIN TK_ID TK_TIPO_INT TK_TIPO_FLOAT TK_TIPO_CHAR TK_TIPO_BOOL TK_CAST_INT TK_CAST_FLOAT //TK_CAST_CHAR TK_CAST_BOOL
-%token TK_FIM TK_ERROR
+%token TK_FIM TK_ERROR 
+%token TK_IG TK_DIF TK_MAIG TK_MEIG TK_MAIOR TK_MENOR TK_AND TK_OR
 
 %start S
 
@@ -220,8 +221,6 @@ E 			: '('E')'
 			}
             | E '+' E //vou colocar o tipo float como default
 			{
-			
-			
 				if($1.tipo != $3.tipo) //default = tipo float mas talvez precise mudar
 				{
 					if($1.tipo == "int" && $3.tipo == "float") 
@@ -306,7 +305,55 @@ E 			: '('E')'
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $1.tipo + "\t" + $$.label +
 					" = " + $1.label + " || " + $3.label + ";\n";
 			}
-			| E '>' E //WIP
+			| E TK_IG E
+			{
+				$$.label = gentempcode();
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
+				" = " + $1.label + " == " + $3.label + ";\n";
+			}
+			| E TK_DIF E
+			{
+				$$.label = gentempcode();
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
+				" = " + $1.label + " != " + $3.label + ";\n";
+			}
+			| E TK_MAIOR E
+			{
+				$$.label = gentempcode();
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
+				" = " + $1.label + " > " + $3.label + ";\n";
+			}
+			| E TK_MENOR E
+			{
+				$$.label = gentempcode();
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
+				" = " + $1.label + " < " + $3.label + ";\n";
+			}
+			| E TK_MAIG E
+			{
+				$$.label = gentempcode();
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
+				" = " + $1.label + " >= " + $3.label + ";\n";
+			}
+			| E TK_MEIG E
+			{
+				$$.label = gentempcode();
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
+				" = " + $1.label + " <= " + $3.label + ";\n";
+			}
+			| E TK_AND E
+			{
+				$$.label = gentempcode();
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
+				" = " + $1.label + " && " + $3.label + ";\n";
+			}
+			| E TK_OR E
+			{
+				$$.label = gentempcode();
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
+				" = " + $1.label + " || " + $3.label + ";\n";
+			}
+			/* | E '>' E //WIP
 			{
 				if($1.tipo != $3.tipo) //default = tipo float mas talvez precise mudar
 				{
@@ -325,7 +372,7 @@ E 			: '('E')'
 				$$.tipo = "int";
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.tipo + "\t" + $$.label +
 					" = " + $1.label + " > " + $3.label + ";\n";
-			}
+			} */
 			| TK_CAST_INT E
 			{
 				if($2.tipo == "float")
