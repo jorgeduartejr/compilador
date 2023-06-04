@@ -19,6 +19,7 @@ struct atributos
 typedef struct{
 	string nomeVariavel;
 	string tipoVariavel;
+	string nomeTemp;
 } TIPO_SIMBOLO;
 
 int var_temp_qnt;
@@ -30,7 +31,7 @@ string gentempcode();
 %}
 
 %token TK_NUM TK_REAL TK_BOOL TK_CHAR
-%token TK_MAIN TK_ID TK_TIPO_INT TK_TIPO_FLOAT TK_TIPO_CHAR TK_TIPO_BOOL
+%token TK_MAIN TK_ID TK_TIPO_INT TK_TIPO_FLOAT TK_TIPO_CHAR TK_TIPO_BOOL TK_CAST_INT TK_CAST_FLOAT //TK_CAST_CHAR TK_CAST_BOOL
 %token TK_FIM TK_ERROR
 
 %start S
@@ -67,6 +68,7 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "int";
+				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
 					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
@@ -84,6 +86,7 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "bool";
+				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
 					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
@@ -100,6 +103,7 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "bool";
+				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
 					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
@@ -118,6 +122,7 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "int";
+				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
 					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
@@ -126,7 +131,7 @@ COMANDO 	: E ';'
 					}
 				}
 				tabelaSimbolos.push_back(valor);
-
+               
 				$$.traducao = $4.traducao + "\t" + $2.tipo + "\t" + $2.label + " = " + $4.label + ";\n";
 				$$.label = "";
 			}
@@ -135,6 +140,7 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "char";
+				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
 					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
@@ -143,7 +149,7 @@ COMANDO 	: E ';'
 					}
 				}
 				tabelaSimbolos.push_back(valor);
-
+         
 				$$.traducao = $4.traducao + "\t" + $2.tipo + "\t" + $2.label + " = " + $4.label + ";\n";
 				$$.label = "";
 			}
@@ -152,6 +158,7 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "float";
+				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
 					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
@@ -169,6 +176,7 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "float";
+				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
 					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
@@ -186,6 +194,7 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "char";
+				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
 					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
@@ -282,20 +291,57 @@ E 			: '('E')'
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $1.tipo + "\t" + $$.label +
 					" = " + $1.label + " / " + $3.label + ";\n";
 			}
-			| E '^' E
+			| E '^' E //WIP
 			{
-				if($1.tipo != "float" || $3.tipo != "float") // talvez precise de typecasting na hora da igualacao em caso de inteiro 
-				{                                            // porem o compilador C aparentemente trunca isso ai entao da pra tankar
-					
-						$1.label = "(float)" + $1.label;
-						$1.tipo = "float";
-						$3.label = "(float)" + $3.label;
-						$3.tipo = "float";
-					
+				if($1.tipo != $3.tipo) //default = tipo float mas talvez precise mudar
+				{
+					yyerror("Operacao invalida: comparar dois tipos distintos");
 				}
 				$$.label = gentempcode();
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $1.tipo + "\t" + $$.label +
-					" = " "powf("+ $1.label + "," + $3.label + ")" + ";\n";
+					" = " + $1.label + " || " + $3.label + ";\n";
+			}
+			| E '>' E //WIP
+			{
+				if($1.tipo != $3.tipo) //default = tipo float mas talvez precise mudar
+				{
+					if($1.tipo == "int" && $3.tipo == "float") 
+					{
+						$1.label = "(float)" + $1.label;
+						$1.tipo = "float";
+					}
+					else if($1.tipo == "float" && $3.tipo == "int")
+					{
+						$3.label = "(float)" + $3.label;
+						$3.tipo = "float";
+					}
+				}
+				$$.label = gentempcode();
+				$$.tipo = "int";
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.tipo + "\t" + $$.label +
+					" = " + $1.label + " > " + $3.label + ";\n";
+			}
+			| TK_CAST_INT E
+			{
+				if($2.tipo == "float")
+				{
+					$2.label = "(int)" + $2.label;
+					$2.tipo = "int";
+				}
+				$$.label = gentempcode();
+				$$.tipo = "int";
+				$$.traducao = $2.traducao + "\t" + $$.tipo + "\t" + $$.label + " = " + $2.label + ";\n";
+			}
+			| TK_CAST_FLOAT E
+			{
+				if($2.tipo == "int")
+				{
+					$2.label = "(float)" + $2.label;
+					$2.tipo = "float";
+				}
+				$$.label = gentempcode();
+				$$.tipo = "float";
+				$$.traducao = $2.traducao + "\t" + $$.tipo + "\t" + $$.label + " = " + $2.label + ";\n";
 			}
 			| TK_ID '=' E
 			{
@@ -316,7 +362,7 @@ E 			: '('E')'
 
 			| TK_BOOL
 			{
-				$$.tipo = "bool";
+				$$.tipo = "bool"; // nao era pra ser secretamente int? 
 				$$.label = gentempcode();
 				$$.traducao = "\t"+ $$.tipo + "\t" + $$.label + " = " + $1.label + ";\n";
 			}
