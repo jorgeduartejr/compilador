@@ -95,7 +95,7 @@ COMANDO 	: E ';'
 					}
 				}
 				tabelaSimbolos.push_back(valor);
-
+                
 				$$.traducao = "";
 				$$.label = "";
 			}
@@ -112,7 +112,8 @@ COMANDO 	: E ';'
 					}
 				}
 				tabelaSimbolos.push_back(valor);
-
+                $2.label = valor.nomeTemp;
+				$2.tipo = valor.tipoVariavel;
 				$$.traducao = $4.traducao + "\t" + $2.tipo + "\t" + $2.label + " = " + $4.label + ";\n";
 				$$.label = "";
 			} 
@@ -131,7 +132,8 @@ COMANDO 	: E ';'
 					}
 				}
 				tabelaSimbolos.push_back(valor);
-               
+                $2.label = valor.nomeTemp;
+				$2.tipo = valor.tipoVariavel;
 				$$.traducao = $4.traducao + "\t" + $2.tipo + "\t" + $2.label + " = " + $4.label + ";\n";
 				$$.label = "";
 			}
@@ -149,7 +151,8 @@ COMANDO 	: E ';'
 					}
 				}
 				tabelaSimbolos.push_back(valor);
-         
+                $2.label = valor.nomeTemp;
+				$2.tipo = valor.tipoVariavel;
 				$$.traducao = $4.traducao + "\t" + $2.tipo + "\t" + $2.label + " = " + $4.label + ";\n";
 				$$.label = "";
 			}
@@ -168,6 +171,8 @@ COMANDO 	: E ';'
 				}
 				tabelaSimbolos.push_back(valor);
 
+                $2.label = valor.nomeTemp;
+				$2.tipo = valor.tipoVariavel;
 				$$.traducao = $4.traducao + "\t" + $2.tipo + "\t" + $2.label + " = " + $4.label + ";\n";
 				$$.label = "";
 			}
@@ -185,7 +190,7 @@ COMANDO 	: E ';'
 					}
 				}
 				tabelaSimbolos.push_back(valor);
-
+                
 				$$.traducao = "";
 				$$.label = "";
 			}
@@ -345,6 +350,18 @@ E 			: '('E')'
 			}
 			| TK_ID '=' E
 			{
+				bool encontrei = false;
+				TIPO_SIMBOLO variavel;
+				for(int i = 0; i < tabelaSimbolos.size(); i++){
+					if(tabelaSimbolos[i].nomeVariavel == $1.label){
+						variavel = tabelaSimbolos[i];
+						encontrei = true;
+					}
+				}
+				if(!encontrei){
+					yyerror("Variavel nao declarada");
+				}
+				$1.label = variavel.nomeTemp;
 				$$.traducao = $1.traducao + $3.traducao +  "\t" + $3.tipo + "\t" +  $1.label + " = " + $3.label + ";\n";
 			}
 			| TK_NUM
@@ -380,7 +397,7 @@ E 			: '('E')'
 				if(!encontrei){
 					yyerror("Variavel nao declarada");
 				}
-
+                $1.label = variavel.nomeTemp;
 				$$.tipo = variavel.tipoVariavel;
 				$$.label = gentempcode();
 				$$.traducao = "\t" + $$.tipo + "\t" + $$.label + " = " + $1.label + ";\n";
