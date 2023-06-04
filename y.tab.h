@@ -59,8 +59,10 @@ extern int yydebug;
     TK_TIPO_FLOAT = 265,
     TK_TIPO_CHAR = 266,
     TK_TIPO_BOOL = 267,
-    TK_FIM = 268,
-    TK_ERROR = 269
+    TK_CAST_INT = 268,
+    TK_CAST_FLOAT = 269,
+    TK_FIM = 270,
+    TK_ERROR = 271
   };
 #endif
 /* Tokens.  */
@@ -74,8 +76,10 @@ extern int yydebug;
 #define TK_TIPO_FLOAT 265
 #define TK_TIPO_CHAR 266
 #define TK_TIPO_BOOL 267
-#define TK_FIM 268
-#define TK_ERROR 269
+#define TK_CAST_INT 268
+#define TK_CAST_FLOAT 269
+#define TK_FIM 270
+#define TK_ERROR 271
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

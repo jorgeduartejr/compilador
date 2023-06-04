@@ -29,9 +29,15 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "char"		{return TK_TIPO_CHAR;}
 
+"(int)"		{return TK_CAST_INT;}
+
+"(float)"	{return TK_CAST_FLOAT;}
+
 [(){}[\];,]	{ return *yytext; }
 
-[+\-*/^]	{ return *yytext; }
+[+\-*/]	    { return *yytext; }
+
+[><^]	    { return *yytext; }
 
 "="         { return '='; }
 
