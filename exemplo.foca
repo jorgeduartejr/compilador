@@ -1,7 +1,7 @@
 int main()
 {
-	bool x;
-	x = 1.0 > 1 || true;
+	int x;
+	int b;
+	b = x + x;
 
-	
 }

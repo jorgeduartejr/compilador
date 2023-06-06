@@ -28,7 +28,27 @@ vector<TIPO_SIMBOLO> tabelaSimbolos;
 int yylex(void);
 void yyerror(string);
 string gentempcode();
+void addtabSimbolos(string ntemp, string tipo)
+{
+	TIPO_SIMBOLO novovar;
+	novovar.nomeVariavel = "";
+	novovar.tipoVariavel = tipo;
+	novovar.nomeTemp = ntemp;
+	tabelaSimbolos.push_back(novovar);
+}
+//void execute_casting(string label)
+string printtabelaSimbolos()
+{
+	string n = "";
+	for(int i = 0; i < tabelaSimbolos.size(); i++)
+	{
+		n += "\t" + tabelaSimbolos[i].tipoVariavel + "\t" + tabelaSimbolos[i].nomeTemp + "\n";
+	}
+	return n;
+}
 %}
+
+
 
 %token TK_NUM TK_REAL TK_BOOL TK_CHAR TK_OP_REL
 %token TK_MAIN TK_ID TK_TIPO_INT TK_TIPO_FLOAT TK_TIPO_CHAR TK_TIPO_BOOL TK_CAST_INT TK_CAST_FLOAT //TK_CAST_CHAR TK_CAST_BOOL
@@ -43,7 +63,9 @@ string gentempcode();
 
 S 			: TK_TIPO_INT TK_MAIN '(' ')' BLOCO
 			{
-				cout << "/*Compilador FOCA*/\n" << "#include <iostream>\n#include<string.h>\n#include<math.h>\n#include<stdio.h>\nint main(void)\n{\n" << $5.traducao << "\treturn 0;\n}" << endl; 
+				
+				cout << "/*Compilador FOCA*/\n" << "#include <iostream>\n#include<string.h>\n#include<math.h>\n#include<stdio.h>\nint main(void)\n{\n" << printtabelaSimbolos() << $5.traducao << "\treturn 0;\n}" << endl; 
+				
 			}
 			;
 
@@ -115,7 +137,7 @@ COMANDO 	: E ';'
 				tabelaSimbolos.push_back(valor);
                 $2.label = valor.nomeTemp;
 				$2.tipo = valor.tipoVariavel;
-				$$.traducao = $4.traducao + "\t" + $2.tipo + "\t" + $2.label + " = " + $4.label + ";\n";
+				$$.traducao = $4.traducao + "\t" + $2.label + " = " + $4.label + ";\n";
 				$$.label = "";
 			} 
 
@@ -135,7 +157,7 @@ COMANDO 	: E ';'
 				tabelaSimbolos.push_back(valor);
                 $2.label = valor.nomeTemp;
 				$2.tipo = valor.tipoVariavel;
-				$$.traducao = $4.traducao + "\t" + $2.tipo + "\t" + $2.label + " = " + $4.label + ";\n";
+				$$.traducao = $4.traducao + "\t" + $2.label + " = " + $4.label + ";\n";
 				$$.label = "";
 			}
 			| TK_TIPO_CHAR TK_ID '=' E ';'
@@ -154,7 +176,7 @@ COMANDO 	: E ';'
 				tabelaSimbolos.push_back(valor);
                 $2.label = valor.nomeTemp;
 				$2.tipo = valor.tipoVariavel;
-				$$.traducao = $4.traducao + "\t" + $2.tipo + "\t" + $2.label + " = " + $4.label + ";\n";
+				$$.traducao = $4.traducao + "\t" + $2.label + " = " + $4.label + ";\n";
 				$$.label = "";
 			}
 			| TK_TIPO_FLOAT TK_ID '=' E ';'
@@ -174,7 +196,7 @@ COMANDO 	: E ';'
 
                 $2.label = valor.nomeTemp;
 				$2.tipo = valor.tipoVariavel;
-				$$.traducao = $4.traducao + "\t" + $2.tipo + "\t" + $2.label + " = " + $4.label + ";\n";
+				$$.traducao = $4.traducao + "\t" + $2.label + " = " + $4.label + ";\n";
 				$$.label = "";
 			}
 			| TK_TIPO_FLOAT TK_ID ';'
@@ -235,7 +257,8 @@ E 			: '('E')'
 					}
 				}
 				$$.label = gentempcode();
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $1.tipo + "\t" + $$.label +
+				addtabSimbolos( $$.label, $1.tipo);
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 					" = " + $1.label + " + " + $3.label + ";\n";
 			}
 			| E '-' E
@@ -254,7 +277,8 @@ E 			: '('E')'
 					}
 				}
 				$$.label = gentempcode();
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $1.tipo + "\t" + $$.label +
+				addtabSimbolos($$.label, $1.tipo);
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 					" = " + $1.label + " - " + $3.label + ";\n";
 			}
 			| E '*' E
@@ -273,7 +297,8 @@ E 			: '('E')'
 					}
 				}
 				$$.label = gentempcode();
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $1.tipo + "\t" + $$.label +
+				addtabSimbolos($$.label, $1.tipo);
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 					" = " + $1.label + " * " + $3.label + ";\n";
 			}
 			| E '/' E
@@ -292,10 +317,11 @@ E 			: '('E')'
 					}
 				}
 				$$.label = gentempcode();
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $1.tipo + "\t" + $$.label +
+				addtabSimbolos($$.label, $1.tipo);
+				$$.traducao = $1.traducao + $3.traducao  + "\t" + $$.label +
 					" = " + $1.label + " / " + $3.label + ";\n";
 			}
-			| E '^' E //WIP
+			/*| E '^' E //WIP
 			{
 				if($1.tipo != $3.tipo) //default = tipo float mas talvez precise mudar
 				{
@@ -304,56 +330,56 @@ E 			: '('E')'
 				$$.label = gentempcode();
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $1.tipo + "\t" + $$.label +
 					" = " + $1.label + " || " + $3.label + ";\n";
-			}
-			| E TK_IG E
+			}*/
+			| E TK_IG E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
 				$$.label = gentempcode();
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 				" = " + $1.label + " == " + $3.label + ";\n";
 			}
-			| E TK_DIF E
+			| E TK_DIF E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
 				$$.label = gentempcode();
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 				" = " + $1.label + " != " + $3.label + ";\n";
 			}
-			| E TK_MAIOR E
+			| E TK_MAIOR E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
 				$$.label = gentempcode();
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 				" = " + $1.label + " > " + $3.label + ";\n";
 			}
-			| E TK_MENOR E
+			| E TK_MENOR E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
 				$$.label = gentempcode();
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 				" = " + $1.label + " < " + $3.label + ";\n";
 			}
-			| E TK_MAIG E
+			| E TK_MAIG E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
 				$$.label = gentempcode();
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 				" = " + $1.label + " >= " + $3.label + ";\n";
 			}
-			| E TK_MEIG E
+			| E TK_MEIG E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
 				$$.label = gentempcode();
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 				" = " + $1.label + " <= " + $3.label + ";\n";
 			}
-			| E TK_AND E
+			| E TK_AND E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
 				$$.label = gentempcode();
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 				" = " + $1.label + " && " + $3.label + ";\n";
 			}
-			| E TK_OR E
+			| E TK_OR E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
 				$$.label = gentempcode();
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 				" = " + $1.label + " || " + $3.label + ";\n";
 			}
-			/* | E '>' E //WIP
+			/*| E '>' E //WIP
 			{
 				if($1.tipo != $3.tipo) //default = tipo float mas talvez precise mudar
 				{
@@ -372,7 +398,7 @@ E 			: '('E')'
 				$$.tipo = "int";
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.tipo + "\t" + $$.label +
 					" = " + $1.label + " > " + $3.label + ";\n";
-			} */
+			}*/
 			| TK_CAST_INT E
 			{
 				if($2.tipo == "float")
@@ -382,7 +408,7 @@ E 			: '('E')'
 				}
 				$$.label = gentempcode();
 				$$.tipo = "int";
-				$$.traducao = $2.traducao + "\t" + $$.tipo + "\t" + $$.label + " = " + $2.label + ";\n";
+				$$.traducao = $2.traducao + "\t" + $$.label + " = " + $2.label + ";\n";
 			}
 			| TK_CAST_FLOAT E
 			{
@@ -393,7 +419,7 @@ E 			: '('E')'
 				}
 				$$.label = gentempcode();
 				$$.tipo = "float";
-				$$.traducao = $2.traducao + "\t" + $$.tipo + "\t" + $$.label + " = " + $2.label + ";\n";
+				$$.traducao = $2.traducao + "\t" + $$.label + " = " + $2.label + ";\n";
 			}
 			| TK_ID '=' E
 			{
@@ -409,26 +435,30 @@ E 			: '('E')'
 					yyerror("Variavel nao declarada");
 				}
 				$1.label = variavel.nomeTemp;
-				$$.traducao = $1.traducao + $3.traducao +  "\t" + $3.tipo + "\t" +  $1.label + " = " + $3.label + ";\n";
+				$$.traducao = $1.traducao + $3.traducao + "\t" +  $1.label + " = " + $3.label + ";\n";
 			}
 			| TK_NUM
 			{	
+
 				$$.tipo = "int";
 				$$.label = gentempcode();
-				$$.traducao = "\t"+ $$.tipo + "\t" + $$.label + " = " + $1.label + ";\n";
+				addtabSimbolos($$.label, $$.tipo);
+				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
 			}
 			| TK_REAL
 			{
 				$$.tipo = "float";
 				$$.label = gentempcode();
-				$$.traducao = "\t"+ $$.tipo + "\t" + $$.label + " = " + $1.label + ";\n";
+				addtabSimbolos($$.label, $$.tipo);
+				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
 			}
 
 			| TK_BOOL
 			{
 				$$.tipo = "bool"; // nao era pra ser secretamente int? 
 				$$.label = gentempcode();
-				$$.traducao = "\t"+ $$.tipo + "\t" + $$.label + " = " + $1.label + ";\n";
+				addtabSimbolos($$.label, $$.tipo);
+				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
 			}
 
 			| TK_ID
@@ -447,7 +477,8 @@ E 			: '('E')'
                 $1.label = variavel.nomeTemp;
 				$$.tipo = variavel.tipoVariavel;
 				$$.label = gentempcode();
-				$$.traducao = "\t" + $$.tipo + "\t" + $$.label + " = " + $1.label + ";\n";
+				addtabSimbolos($$.label, $$.tipo);
+				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
 			}	
 			;
 
@@ -466,9 +497,9 @@ int main( int argc, char* argv[] )
 {
 
 	var_temp_qnt = 0;
-
+    
 	yyparse();
-
+    //cout << printtabelaSimbolos();
 	return 0;
 }
 
