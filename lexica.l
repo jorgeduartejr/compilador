@@ -37,8 +37,6 @@ BOOL \'(true|false)\'
 
 [+\-*/]	    { return *yytext; }
 
-[><^]	    { return *yytext; }
-
 "="         { return '='; }
 
 "=="        { return TK_IG; }
