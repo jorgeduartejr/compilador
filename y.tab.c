@@ -592,9 +592,9 @@ static const yytype_int8 yytranslate[] =
 static const yytype_int16 yyrline[] =
 {
        0,    64,    64,    72,    78,    83,    88,    89,   107,   125,
-     144,   163,   182,   202,   220,   240,   244,   264,   284,   304,
-     334,   340,   346,   352,   358,   364,   370,   376,   402,   413,
-     424,   440,   448,   456,   464
+     144,   163,   182,   202,   220,   240,   244,   274,   304,   334,
+     374,   380,   386,   392,   398,   404,   410,   416,   442,   453,
+     464,   480,   488,   496,   504
 };
 #endif
 
@@ -1683,177 +1683,217 @@ yyreduce:
 				{
 					if(yyvsp[-2].tipo == "int" && yyvsp[0].tipo == "float") 
 					{
-						yyvsp[-2].label = "(float)" + yyvsp[-2].label;
-						yyvsp[-2].tipo = "float";
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						yyval.label = gentempcode();
+				        addtabSimbolos( yyval.label, "float");
+				        yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + castvar + " = " + "(float)" + yyvsp[-2].label + ";\n" + "\t" + yyval.label +
+					    " = " + castvar + " + " + yyvsp[0].label + ";\n";
 					}
 					else if(yyvsp[-2].tipo == "float" && yyvsp[0].tipo == "int")
 					{
-						yyvsp[0].label = "(float)" + yyvsp[0].label;
-						yyvsp[0].tipo = "float";
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						yyval.label = gentempcode();
+				        addtabSimbolos( yyval.label, "float");
+				        yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + castvar + " = " + "(float)" + yyvsp[0].label + ";\n" + "\t" + yyval.label +
+					    " = " + yyvsp[-2].label + " + " + castvar + ";\n";
 					}
 				}
+				else{
 				yyval.label = gentempcode();
 				addtabSimbolos( yyval.label, yyvsp[-2].tipo);
 				yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label +
 					" = " + yyvsp[-2].label + " + " + yyvsp[0].label + ";\n";
+				}
 			}
-#line 1701 "y.tab.c"
+#line 1711 "y.tab.c"
     break;
 
   case 17:
-#line 265 "sintatica.y"
+#line 275 "sintatica.y"
                         {
 				if(yyvsp[-2].tipo != yyvsp[0].tipo) //default = tipo float mas talvez precise mudar
 				{
 					if(yyvsp[-2].tipo == "int" && yyvsp[0].tipo == "float") 
 					{
-						yyvsp[-2].label = "(float)" + yyvsp[-2].label;
-						yyvsp[-2].tipo = "float";
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						yyval.label = gentempcode();
+				        addtabSimbolos( yyval.label, "float");
+				        yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + castvar + " = " + "(float)" + yyvsp[-2].label + ";\n" + "\t" + yyval.label +
+					    " = " + castvar + " - " + yyvsp[0].label + ";\n";
 					}
 					else if(yyvsp[-2].tipo == "float" && yyvsp[0].tipo == "int")
 					{
-						yyvsp[0].label = "(float)" + yyvsp[0].label;
-						yyvsp[0].tipo = "float";
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						yyval.label = gentempcode();
+				        addtabSimbolos( yyval.label, "float");
+				        yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + castvar + " = " + "(float)" + yyvsp[0].label + ";\n" + "\t" + yyval.label +
+					    " = " + yyvsp[-2].label + " - " + castvar + ";\n";
 					}
 				}
+				else{
 				yyval.label = gentempcode();
 				addtabSimbolos(yyval.label, yyvsp[-2].tipo);
 				yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label +
 					" = " + yyvsp[-2].label + " - " + yyvsp[0].label + ";\n";
+				}
 			}
-#line 1725 "y.tab.c"
+#line 1745 "y.tab.c"
     break;
 
   case 18:
-#line 285 "sintatica.y"
-                        {
-				if(yyvsp[-2].tipo != yyvsp[0].tipo) //default = tipo float mas talvez precise mudar
-				{
-					if(yyvsp[-2].tipo == "int" && yyvsp[0].tipo == "float") 
-					{
-						yyvsp[-2].label = "(float)" + yyvsp[-2].label;
-						yyvsp[-2].tipo = "float";
-					}
-					else if(yyvsp[-2].tipo == "float" && yyvsp[0].tipo == "int")
-					{
-						yyvsp[0].label = "(float)" + yyvsp[0].label;
-						yyvsp[0].tipo = "float";
-					}
-				}
-				yyval.label = gentempcode();
-				addtabSimbolos(yyval.label, yyvsp[-2].tipo);
-				yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label +
-					" = " + yyvsp[-2].label + " * " + yyvsp[0].label + ";\n";
-			}
-#line 1749 "y.tab.c"
-    break;
-
-  case 19:
 #line 305 "sintatica.y"
                         {
 				if(yyvsp[-2].tipo != yyvsp[0].tipo) //default = tipo float mas talvez precise mudar
 				{
 					if(yyvsp[-2].tipo == "int" && yyvsp[0].tipo == "float") 
 					{
-						yyvsp[-2].label = "(float)" + yyvsp[-2].label;
-						yyvsp[-2].tipo = "float";
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						yyval.label = gentempcode();
+				        addtabSimbolos( yyval.label, "float");
+				        yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + castvar + " = " + "(float)" + yyvsp[-2].label + ";\n" + "\t" + yyval.label +
+					    " = " + castvar + " * " + yyvsp[0].label + ";\n";
 					}
 					else if(yyvsp[-2].tipo == "float" && yyvsp[0].tipo == "int")
 					{
-						yyvsp[0].label = "(float)" + yyvsp[0].label;
-						yyvsp[0].tipo = "float";
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						yyval.label = gentempcode();
+				        addtabSimbolos( yyval.label, "float");
+				        yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + castvar + " = " + "(float)" + yyvsp[0].label + ";\n" + "\t" + yyval.label +
+					    " = " + yyvsp[-2].label + " * " + castvar + ";\n";
 					}
 				}
+				else{
+				yyval.label = gentempcode();
+				addtabSimbolos(yyval.label, yyvsp[-2].tipo);
+				yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label +
+					" = " + yyvsp[-2].label + " * " + yyvsp[0].label + ";\n";
+				}
+			}
+#line 1779 "y.tab.c"
+    break;
+
+  case 19:
+#line 335 "sintatica.y"
+                        {
+				if(yyvsp[-2].tipo != yyvsp[0].tipo) //default = tipo float mas talvez precise mudar
+				{
+					if(yyvsp[-2].tipo == "int" && yyvsp[0].tipo == "float") 
+					{
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						yyval.label = gentempcode();
+				        addtabSimbolos( yyval.label, "float");
+				        yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + castvar + " = " + "(float)" + yyvsp[-2].label + ";\n" + "\t" + yyval.label +
+					    " = " + castvar + " / " + yyvsp[0].label + ";\n";
+					}
+					else if(yyvsp[-2].tipo == "float" && yyvsp[0].tipo == "int")
+					{
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						yyval.label = gentempcode();
+				        addtabSimbolos( yyval.label, "float");
+				        yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + castvar + " = " + "(float)" + yyvsp[0].label + ";\n" + "\t" + yyval.label +
+					    " = " + yyvsp[-2].label + " / " + castvar + ";\n";
+					}
+				}
+				else{
 				yyval.label = gentempcode();
 				addtabSimbolos(yyval.label, yyvsp[-2].tipo);
 				yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao  + "\t" + yyval.label +
 					" = " + yyvsp[-2].label + " / " + yyvsp[0].label + ";\n";
+				}
 			}
-#line 1773 "y.tab.c"
+#line 1813 "y.tab.c"
     break;
 
   case 20:
-#line 335 "sintatica.y"
+#line 375 "sintatica.y"
                         {
 				yyval.label = gentempcode();
 				yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label +
 				" = " + yyvsp[-2].label + " == " + yyvsp[0].label + ";\n";
 			}
-#line 1783 "y.tab.c"
+#line 1823 "y.tab.c"
     break;
 
   case 21:
-#line 341 "sintatica.y"
+#line 381 "sintatica.y"
                         {
 				yyval.label = gentempcode();
 				yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label +
 				" = " + yyvsp[-2].label + " != " + yyvsp[0].label + ";\n";
 			}
-#line 1793 "y.tab.c"
+#line 1833 "y.tab.c"
     break;
 
   case 22:
-#line 347 "sintatica.y"
+#line 387 "sintatica.y"
                         {
 				yyval.label = gentempcode();
 				yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label +
 				" = " + yyvsp[-2].label + " > " + yyvsp[0].label + ";\n";
 			}
-#line 1803 "y.tab.c"
+#line 1843 "y.tab.c"
     break;
 
   case 23:
-#line 353 "sintatica.y"
+#line 393 "sintatica.y"
                         {
 				yyval.label = gentempcode();
 				yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label +
 				" = " + yyvsp[-2].label + " < " + yyvsp[0].label + ";\n";
 			}
-#line 1813 "y.tab.c"
+#line 1853 "y.tab.c"
     break;
 
   case 24:
-#line 359 "sintatica.y"
+#line 399 "sintatica.y"
                         {
 				yyval.label = gentempcode();
 				yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label +
 				" = " + yyvsp[-2].label + " >= " + yyvsp[0].label + ";\n";
 			}
-#line 1823 "y.tab.c"
+#line 1863 "y.tab.c"
     break;
 
   case 25:
-#line 365 "sintatica.y"
+#line 405 "sintatica.y"
                         {
 				yyval.label = gentempcode();
 				yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label +
 				" = " + yyvsp[-2].label + " <= " + yyvsp[0].label + ";\n";
 			}
-#line 1833 "y.tab.c"
+#line 1873 "y.tab.c"
     break;
 
   case 26:
-#line 371 "sintatica.y"
+#line 411 "sintatica.y"
                         {
 				yyval.label = gentempcode();
 				yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label +
 				" = " + yyvsp[-2].label + " && " + yyvsp[0].label + ";\n";
 			}
-#line 1843 "y.tab.c"
+#line 1883 "y.tab.c"
     break;
 
   case 27:
-#line 377 "sintatica.y"
+#line 417 "sintatica.y"
                         {
 				yyval.label = gentempcode();
 				yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label +
 				" = " + yyvsp[-2].label + " || " + yyvsp[0].label + ";\n";
 			}
-#line 1853 "y.tab.c"
+#line 1893 "y.tab.c"
     break;
 
   case 28:
-#line 403 "sintatica.y"
+#line 443 "sintatica.y"
                         {
 				if(yyvsp[0].tipo == "float")
 				{
@@ -1864,11 +1904,11 @@ yyreduce:
 				yyval.tipo = "int";
 				yyval.traducao = yyvsp[0].traducao + "\t" + yyval.label + " = " + yyvsp[0].label + ";\n";
 			}
-#line 1868 "y.tab.c"
+#line 1908 "y.tab.c"
     break;
 
   case 29:
-#line 414 "sintatica.y"
+#line 454 "sintatica.y"
                         {
 				if(yyvsp[0].tipo == "int")
 				{
@@ -1879,11 +1919,11 @@ yyreduce:
 				yyval.tipo = "float";
 				yyval.traducao = yyvsp[0].traducao + "\t" + yyval.label + " = " + yyvsp[0].label + ";\n";
 			}
-#line 1883 "y.tab.c"
+#line 1923 "y.tab.c"
     break;
 
   case 30:
-#line 425 "sintatica.y"
+#line 465 "sintatica.y"
                         {
 				bool encontrei = false;
 				TIPO_SIMBOLO variavel;
@@ -1899,11 +1939,11 @@ yyreduce:
 				yyvsp[-2].label = variavel.nomeTemp;
 				yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" +  yyvsp[-2].label + " = " + yyvsp[0].label + ";\n";
 			}
-#line 1903 "y.tab.c"
+#line 1943 "y.tab.c"
     break;
 
   case 31:
-#line 441 "sintatica.y"
+#line 481 "sintatica.y"
                         {	
 
 				yyval.tipo = "int";
@@ -1911,33 +1951,33 @@ yyreduce:
 				addtabSimbolos(yyval.label, yyval.tipo);
 				yyval.traducao = "\t" + yyval.label + " = " + yyvsp[0].label + ";\n";
 			}
-#line 1915 "y.tab.c"
+#line 1955 "y.tab.c"
     break;
 
   case 32:
-#line 449 "sintatica.y"
+#line 489 "sintatica.y"
                         {
 				yyval.tipo = "float";
 				yyval.label = gentempcode();
 				addtabSimbolos(yyval.label, yyval.tipo);
 				yyval.traducao = "\t" + yyval.label + " = " + yyvsp[0].label + ";\n";
 			}
-#line 1926 "y.tab.c"
+#line 1966 "y.tab.c"
     break;
 
   case 33:
-#line 457 "sintatica.y"
+#line 497 "sintatica.y"
                         {
 				yyval.tipo = "bool"; // nao era pra ser secretamente int? 
 				yyval.label = gentempcode();
 				addtabSimbolos(yyval.label, yyval.tipo);
 				yyval.traducao = "\t" + yyval.label + " = " + yyvsp[0].label + ";\n";
 			}
-#line 1937 "y.tab.c"
+#line 1977 "y.tab.c"
     break;
 
   case 34:
-#line 465 "sintatica.y"
+#line 505 "sintatica.y"
                         {
 				bool encontrei = false;
 				TIPO_SIMBOLO variavel;
@@ -1956,11 +1996,11 @@ yyreduce:
 				addtabSimbolos(yyval.label, yyval.tipo);
 				yyval.traducao = "\t" + yyval.label + " = " + yyvsp[0].label + ";\n";
 			}
-#line 1960 "y.tab.c"
+#line 2000 "y.tab.c"
     break;
 
 
-#line 1964 "y.tab.c"
+#line 2004 "y.tab.c"
 
       default: break;
     }
@@ -2192,7 +2232,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 485 "sintatica.y"
+#line 525 "sintatica.y"
 
 
 #include "lex.yy.c"
