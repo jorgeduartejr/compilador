@@ -1,9 +1,9 @@
 int main()
 {
-	int a;
-	a = 1;
-    float b;
-	b = 1.0;
-	a*3.0 + b;
+    int x = 1;
+    float y = 1;
 
+    x != y;
+
+	
 }

@@ -11,7 +11,8 @@ NUM {DIGITO}+
 REAL {NUM}+("."{NUM}+)?
 ID {LETRA}({LETRA}|{NUM})*
 CHAR \'({LETRA}|{NUM})\'
-BOOL \'(true|false)\'
+BOOL "true"|"false"|"1"|"0"
+STRING \"([^\"\n]|\\\")*\"
 
 %%
 
@@ -55,6 +56,7 @@ BOOL \'(true|false)\'
 
 "||"        { return TK_OR; }
 
+"!"         { return TK_NOT; }
 
 {NUM}		{ yylval.label = yytext; return TK_NUM; }
 {ID}		{ yylval.label = yytext; return TK_ID; }

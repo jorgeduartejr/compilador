@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.5.1.  */
+/* A Bison parser, made by GNU Bison 3.8.2.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation,
    Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -31,8 +31,9 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
+/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
+   especially those whose name start with YY_ or yy_.  They are
+   private implementation details that can be changed or removed.  */
 
 #ifndef YY_YY_Y_TAB_H_INCLUDED
 # define YY_YY_Y_TAB_H_INCLUDED
@@ -44,37 +45,47 @@
 extern int yydebug;
 #endif
 
-/* Token type.  */
+/* Token kinds.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    TK_NUM = 258,
-    TK_REAL = 259,
-    TK_BOOL = 260,
-    TK_CHAR = 261,
-    TK_OP_REL = 262,
-    TK_MAIN = 263,
-    TK_ID = 264,
-    TK_TIPO_INT = 265,
-    TK_TIPO_FLOAT = 266,
-    TK_TIPO_CHAR = 267,
-    TK_TIPO_BOOL = 268,
-    TK_CAST_INT = 269,
-    TK_CAST_FLOAT = 270,
-    TK_FIM = 271,
-    TK_ERROR = 272,
-    TK_IG = 273,
-    TK_DIF = 274,
-    TK_MAIG = 275,
-    TK_MEIG = 276,
-    TK_MAIOR = 277,
-    TK_MENOR = 278,
-    TK_AND = 279,
-    TK_OR = 280
+    YYEMPTY = -2,
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    TK_NUM = 258,                  /* TK_NUM  */
+    TK_REAL = 259,                 /* TK_REAL  */
+    TK_BOOL = 260,                 /* TK_BOOL  */
+    TK_CHAR = 261,                 /* TK_CHAR  */
+    TK_OP_REL = 262,               /* TK_OP_REL  */
+    TK_MAIN = 263,                 /* TK_MAIN  */
+    TK_ID = 264,                   /* TK_ID  */
+    TK_TIPO_INT = 265,             /* TK_TIPO_INT  */
+    TK_TIPO_FLOAT = 266,           /* TK_TIPO_FLOAT  */
+    TK_TIPO_CHAR = 267,            /* TK_TIPO_CHAR  */
+    TK_TIPO_BOOL = 268,            /* TK_TIPO_BOOL  */
+    TK_CAST_INT = 269,             /* TK_CAST_INT  */
+    TK_CAST_FLOAT = 270,           /* TK_CAST_FLOAT  */
+    TK_FIM = 271,                  /* TK_FIM  */
+    TK_ERROR = 272,                /* TK_ERROR  */
+    TK_IG = 273,                   /* TK_IG  */
+    TK_DIF = 274,                  /* TK_DIF  */
+    TK_MAIG = 275,                 /* TK_MAIG  */
+    TK_MEIG = 276,                 /* TK_MEIG  */
+    TK_MAIOR = 277,                /* TK_MAIOR  */
+    TK_MENOR = 278,                /* TK_MENOR  */
+    TK_AND = 279,                  /* TK_AND  */
+    TK_OR = 280,                   /* TK_OR  */
+    TK_NOT = 281                   /* TK_NOT  */
   };
+  typedef enum yytokentype yytoken_kind_t;
 #endif
-/* Tokens.  */
+/* Token kinds.  */
+#define YYEMPTY -2
+#define YYEOF 0
+#define YYerror 256
+#define YYUNDEF 257
 #define TK_NUM 258
 #define TK_REAL 259
 #define TK_BOOL 260
@@ -98,6 +109,7 @@ extern int yydebug;
 #define TK_MENOR 278
 #define TK_AND 279
 #define TK_OR 280
+#define TK_NOT 281
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -109,6 +121,8 @@ typedef int YYSTYPE;
 
 extern YYSTYPE yylval;
 
+
 int yyparse (void);
+
 
 #endif /* !YY_YY_Y_TAB_H_INCLUDED  */
