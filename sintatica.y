@@ -50,10 +50,10 @@ string printtabelaSimbolos()
 
 
 
-%token TK_NUM TK_REAL TK_BOOL TK_CHAR TK_OP_REL
+%token TK_NUM TK_REAL TK_BOOL TK_CHAR TK_OP_REL 
 %token TK_MAIN TK_ID TK_TIPO_INT TK_TIPO_FLOAT TK_TIPO_CHAR TK_TIPO_BOOL TK_CAST_INT TK_CAST_FLOAT //TK_CAST_CHAR TK_CAST_BOOL
 %token TK_FIM TK_ERROR 
-%token TK_IG TK_DIF TK_MAIG TK_MEIG TK_MAIOR TK_MENOR TK_AND TK_OR TK_NOT
+%token TK_IG TK_DIF TK_MAIG TK_MEIG TK_MAIOR TK_MENOR TK_AND TK_OR TK_NOT TK_MAIS_MAIS TK_MENOS_MENOS TK_IF TK_ELSE TK_WHILE TK_DO TK_FOR TK_SWITCH TK_CASE TK_BREAK TK_DEFAULT TK_CONTINUE TK_RETURN
 
 %start S
 
@@ -108,7 +108,7 @@ COMANDO 	: E ';'
 			{
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
-				valor.tipoVariavel = "bool";
+				valor.tipoVariavel = "int";
 				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
@@ -125,7 +125,7 @@ COMANDO 	: E ';'
 			| TK_TIPO_BOOL TK_ID '=' E ';'{
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
-				valor.tipoVariavel = "bool";
+				valor.tipoVariavel = "int";
 				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
@@ -364,22 +364,6 @@ E 			: '('E')'
 			| E TK_IG E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{	
 				
-				$$.label = gentempcode();
-				$$.tipo = "bool";
-				if($1.tipo != "bool" || $3.tipo != "bool")
-				{
-					yyerror("Operacao invalida: comparar dois tipos distintos");
-				} else{
-					addtabSimbolos($$.label, $$.tipo);
-				}
-				
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
-				" = " + $1.label + " == " + $3.label + ";\n";
-			}
-			| E TK_DIF E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
-			{
-				$$.label = gentempcode();
-				$$.tipo = "bool";
 				if($1.tipo != $3.tipo) 
 				{
 					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
@@ -388,8 +372,8 @@ E 			: '('E')'
 				        addtabSimbolos( castvar, "float");
 						$$.label = gentempcode();
 				        addtabSimbolos( $$.label, "float");
-				        $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
-						" = " + $1.label + " != " + $3.label + ";\n";
+				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
+					    " = " + castvar + " == " + $3.label + ";\n";
 					}
 					else if($1.tipo == "float" && $3.tipo == "int")
 					{
@@ -397,102 +381,212 @@ E 			: '('E')'
 				        addtabSimbolos( castvar, "float");
 						$$.label = gentempcode();
 				        addtabSimbolos( $$.label, "float");
-				        $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
-						" = " + $1.label + " != " + $3.label + ";\n";
+				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
+					    " = " + castvar + " == " + $3.label + ";\n";
+					}
+				} 
+			}
+			| E TK_DIF E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
+			{
+				//$$.label = gentempcode();
+				//$$.tipo = "bool";
+				if($1.tipo != $3.tipo) 
+				{
+					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
+					{
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						$$.label = gentempcode();
+				        addtabSimbolos( $$.label, "float");
+				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
+					    " = " + castvar + " != " + $3.label + ";\n";
+					}
+					else if($1.tipo == "float" && $3.tipo == "int")
+					{
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						$$.label = gentempcode();
+				        addtabSimbolos( $$.label, "float");
+				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
+					    " = " + castvar + " != " + $3.label + ";\n";
 					}
 				} 
 				
 			}
 			| E TK_MAIOR E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
-				$$.label = gentempcode();
-				$$.tipo = "bool";
-				if($1.tipo != "bool" || $3.tipo != "bool")
+				if($1.tipo != $3.tipo) 
 				{
-					yyerror("Operacao invalida: comparar dois tipos distintos");
-				} else {
-					addtabSimbolos($$.label, $$.tipo);
-				}
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
-				" = " + $1.label + " > " + $3.label + ";\n";
+					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
+					{
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						$$.label = gentempcode();
+				        addtabSimbolos( $$.label, "float");
+				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
+					    " = " + castvar + " > " + $3.label + ";\n";
+					}
+					else if($1.tipo == "float" && $3.tipo == "int")
+					{
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						$$.label = gentempcode();
+				        addtabSimbolos( $$.label, "float");
+				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
+					    " = " + castvar + " > " + $3.label + ";\n";
+					}
+				} 
 			}
 			| E TK_MENOR E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
-				$$.label = gentempcode();
-				$$.tipo = "bool";
-				if($1.tipo != "bool" || $3.tipo != "bool")
+				if($1.tipo != $3.tipo) 
 				{
-					yyerror("Operacao invalida: comparar dois tipos distintos");
-				} else {
-					addtabSimbolos($$.label, $$.tipo);
-				}
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
-				" = " + $1.label + " < " + $3.label + ";\n";
+					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
+					{
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						$$.label = gentempcode();
+				        addtabSimbolos( $$.label, "float");
+				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
+					    " = " + castvar + " < " + $3.label + ";\n";
+					}
+					else if($1.tipo == "float" && $3.tipo == "int")
+					{
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						$$.label = gentempcode();
+				        addtabSimbolos( $$.label, "float");
+				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
+					    " = " + castvar + " < " + $3.label + ";\n";
+					}
+				} 
 			}
 			| E TK_MAIG E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
-				$$.label = gentempcode();
-				$$.tipo = "bool";
-				if($1.tipo != "bool" || $3.tipo != "bool")
+				if($1.tipo != $3.tipo) 
 				{
-					yyerror("Operacao invalida: comparar dois tipos distintos");
-				} else {
-					addtabSimbolos($$.label, $$.tipo);
-				}
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
-				" = " + $1.label + " >= " + $3.label + ";\n";
+					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
+					{
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						$$.label = gentempcode();
+				        addtabSimbolos( $$.label, "float");
+				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
+					    " = " + castvar + " >= " + $3.label + ";\n";
+					}
+					else if($1.tipo == "float" && $3.tipo == "int")
+					{
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						$$.label = gentempcode();
+				        addtabSimbolos( $$.label, "float");
+				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
+					    " = " + castvar + " >= " + $3.label + ";\n";
+					}
+				} 
 			}
 			| E TK_MEIG E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
-				$$.label = gentempcode();
-				$$.tipo = "bool";
-				if($1.tipo != "bool" || $3.tipo != "bool")
+				if($1.tipo != $3.tipo) 
 				{
-					yyerror("Operacao invalida: comparar dois tipos distintos");
-				} else {
-					addtabSimbolos($$.label, $$.tipo);
-				}
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
-				" = " + $1.label + " <= " + $3.label + ";\n";
+					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
+					{
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						$$.label = gentempcode();
+				        addtabSimbolos( $$.label, "float");
+				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
+					    " = " + castvar + " <= " + $3.label + ";\n";
+					}
+					else if($1.tipo == "float" && $3.tipo == "int")
+					{
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						$$.label = gentempcode();
+				        addtabSimbolos( $$.label, "float");
+				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
+					    " = " + castvar + " <= " + $3.label + ";\n";
+					}
+				} 
 			}
 			| E TK_AND E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
-				$$.label = gentempcode();
-				$$.tipo = "bool";
-				if($1.tipo != "bool" || $3.tipo != "bool")
+				if($1.tipo != $3.tipo) 
 				{
-					yyerror("Operacao invalida: comparar dois tipos distintos");
-				} else {
-					addtabSimbolos($$.label, $$.tipo);
-				}
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
-				" = " + $1.label + " && " + $3.label + ";\n";
+					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
+					{
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						$$.label = gentempcode();
+				        addtabSimbolos( $$.label, "float");
+				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
+					    " = " + castvar + " && " + $3.label + ";\n";
+					}
+					else if($1.tipo == "float" && $3.tipo == "int")
+					{
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						$$.label = gentempcode();
+				        addtabSimbolos( $$.label, "float");
+				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
+					    " = " + castvar + " && " + $3.label + ";\n";
+					}
+				} 
 			}
 			| E TK_OR E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
-				$$.label = gentempcode();
-				$$.tipo = "bool";
-				if($1.tipo != "bool" || $3.tipo != "bool")
+				if($1.tipo != $3.tipo) 
 				{
-					yyerror("Operacao invalida: comparar dois tipos distintos");
-				} else {
-					addtabSimbolos($$.label, $$.tipo);
-				}
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
-				" = " + $1.label + " || " + $3.label + ";\n";
+					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
+					{
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						$$.label = gentempcode();
+				        addtabSimbolos( $$.label, "float");
+				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
+					    " = " + castvar + " || " + $3.label + ";\n";
+					}
+					else if($1.tipo == "float" && $3.tipo == "int")
+					{
+						string castvar = gentempcode();
+				        addtabSimbolos( castvar, "float");
+						$$.label = gentempcode();
+				        addtabSimbolos( $$.label, "float");
+				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
+					    " = " + castvar + " || " + $3.label + ";\n";
+					}
+				} 
 			}
 			| TK_NOT E
 			{
 				$$.label = gentempcode();
-				$$.tipo = "bool";
-				if($2.tipo != "bool")
+				$$.traducao = $2.traducao + "\t" + $$.label +
+				" = ! " + $2.label + ";\n";
+			}
+			| E TK_MAIS_MAIS // incremental ++
+			{
+				$$.label = gentempcode();
+				$$.tipo = "int";
+				if($1.tipo != "int")
 				{
-					yyerror("Operacao invalida: comparar dois tipos distintos");
+					yyerror("Operacao invalida: incrementar variavel nao inteira");
 				} else {
 					addtabSimbolos($$.label, $$.tipo);
 				}
-				$$.traducao = $2.traducao + "\t" + $$.label +
-				" = ! " + $2.label + ";\n";
+				$$.traducao = $1.traducao + "\t" + $$.label + " = " + $1.label + " + 1;\n";
+
+			}
+			| E TK_MENOS_MENOS // decremental --
+			{
+				$$.label = gentempcode();
+				$$.tipo = "int";
+				if($1.tipo != "int")
+				{
+					yyerror("Operacao invalida: decrementar variavel nao inteira");
+				} else {
+					addtabSimbolos($$.label, $$.tipo);
+				}
+				$$.traducao = $1.traducao + "\t" + $$.label + " = " + $1.label + " - 1;\n";
 			}
 			| TK_CAST_INT E
 			{
@@ -548,17 +642,23 @@ E 			: '('E')'
 				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
 			}
 
-			| TK_BOOL
+			/* | TK_BOOL
 			{
 				$$.tipo = "bool"; // nao era pra ser secretamente int? 
 				$$.label = gentempcode();
 				addtabSimbolos($$.label, $$.tipo);
 				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
-			}
+			} */
 
 			| TK_ID
 			{
-				bool encontrei = false;
+				if ($1.label == "true" || $1.label == "false"){
+					$$.tipo = "int";
+					$$.label = gentempcode();
+					addtabSimbolos($$.label, $$.tipo);
+					$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
+				} else {
+					bool encontrei = false;
 				TIPO_SIMBOLO variavel;
 				for(int i = 0; i < tabelaSimbolos.size(); i++){
 					if(tabelaSimbolos[i].nomeVariavel == $1.label){
@@ -567,13 +667,18 @@ E 			: '('E')'
 					}
 				}
 				if(!encontrei){
-					yyerror("Variavel nao declarada");
+					if($1.label == "true" || $1.label == "false"){
+						$$.tipo = "int";
+					} else {
+						yyerror("Variavel nao declarada");
+					}
 				}
                 $1.label = variavel.nomeTemp;
 				$$.tipo = variavel.tipoVariavel;
 				$$.label = gentempcode();
 				addtabSimbolos($$.label, $$.tipo);
 				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
+				}
 			}	
 			;
 

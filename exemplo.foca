@@ -1,9 +1,6 @@
 int main()
 {
-    int x = 1;
-    float y = 1;
+    bool x;
+    x = 1.0 > 1 || true ;
 
-    x != y;
-
-	
 }

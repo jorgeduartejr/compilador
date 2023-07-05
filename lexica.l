@@ -11,7 +11,7 @@ NUM {DIGITO}+
 REAL {NUM}+("."{NUM}+)?
 ID {LETRA}({LETRA}|{NUM})*
 CHAR \'({LETRA}|{NUM})\'
-BOOL "true"|"false"|"1"|"0"
+BOOL "true"|"false"
 STRING \"([^\"\n]|\\\")*\"
 
 %%
@@ -57,6 +57,24 @@ STRING \"([^\"\n]|\\\")*\"
 "||"        { return TK_OR; }
 
 "!"         { return TK_NOT; }
+
+"++"        { return TK_MAIS_MAIS; }
+
+"--"        { return TK_MENOS_MENOS; }
+
+"if"        { return TK_IF; }
+
+"else"      { return TK_ELSE; }
+
+"while"     { return TK_WHILE; }
+
+"for"       { return TK_FOR; }
+
+"return"    { return TK_RETURN; }
+
+"break"     { return TK_BREAK; }
+
+"continue"  { return TK_CONTINUE; }
 
 {NUM}		{ yylval.label = yytext; return TK_NUM; }
 {ID}		{ yylval.label = yytext; return TK_ID; }
