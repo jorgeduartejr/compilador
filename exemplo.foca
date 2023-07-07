@@ -1,6 +1,15 @@
 int main()
 {
-    bool x;
-    x = 1.0 > 1 || true ;
-
+    int c;
+    {
+		c = 1;
+		{
+			float c;
+			c = 3;
+		}
+	}
+	{
+		int c;
+		c = 3;
+	}
 }

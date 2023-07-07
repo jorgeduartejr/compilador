@@ -3,7 +3,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
-
+#include <stack>
 
 
 #define YYSTYPE atributos
@@ -20,11 +20,14 @@ typedef struct{
 	string nomeVariavel;
 	string tipoVariavel;
 	string nomeTemp;
+	stack<int> scope;
 } TIPO_SIMBOLO;
 
 int var_temp_qnt;
 vector<TIPO_SIMBOLO> tabelaSimbolos;
-
+int flag;
+int marcador;
+stack<int> escopototal;
 int yylex(void);
 void yyerror(string);
 string gentempcode();
@@ -34,6 +37,7 @@ void addtabSimbolos(string ntemp, string tipo)
 	novovar.nomeVariavel = "";
 	novovar.tipoVariavel = tipo;
 	novovar.nomeTemp = ntemp;
+	novovar.scope = escopototal;
 	tabelaSimbolos.push_back(novovar);
 }
 //void execute_casting(string label)
@@ -57,7 +61,8 @@ string printtabelaSimbolos()
 
 %start S
 
-%left '+'
+%left '+' '-'
+%left '*'
 
 %%
 
@@ -72,6 +77,8 @@ S 			: TK_TIPO_INT TK_MAIN '(' ')' BLOCO
 BLOCO		: '{' COMANDOS '}'
 			{
 				$$.traducao = $2.traducao;
+				escopototal.pop();
+
 			}
 			;
 
@@ -86,6 +93,12 @@ COMANDOS	: COMANDO COMANDOS
 			;
 
 COMANDO 	: E ';'
+            | BLOCO
+			{
+                flag++;
+				escopototal.push(flag);
+
+			}
 			| TK_TIPO_INT TK_ID ';'
 			{
 				TIPO_SIMBOLO valor;
@@ -94,7 +107,7 @@ COMANDO 	: E ';'
 				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
-					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel && tabelaSimbolos[i].scope == escopototal)
 					{
 						yyerror("Variavel ja declarada");
 					}
@@ -112,7 +125,7 @@ COMANDO 	: E ';'
 				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
-					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel && tabelaSimbolos[i].scope == escopototal)
 					{
 						yyerror("Variavel ja declarada");
 					}
@@ -129,7 +142,7 @@ COMANDO 	: E ';'
 				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
-					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel && tabelaSimbolos[i].scope == escopototal)
 					{
 						yyerror("Variavel ja declarada");
 					}
@@ -149,7 +162,7 @@ COMANDO 	: E ';'
 				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
-					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel && tabelaSimbolos[i].scope == escopototal)
 					{
 						yyerror("Variavel ja declarada");
 					}
@@ -168,7 +181,7 @@ COMANDO 	: E ';'
 				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
-					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel && tabelaSimbolos[i].scope == escopototal)
 					{
 						yyerror("Variavel ja declarada");
 					}
@@ -187,7 +200,7 @@ COMANDO 	: E ';'
 				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
-					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel && tabelaSimbolos[i].scope == escopototal)
 					{
 						yyerror("Variavel ja declarada");
 					}
@@ -207,7 +220,7 @@ COMANDO 	: E ';'
 				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
-					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel && tabelaSimbolos[i].scope == escopototal)
 					{
 						yyerror("Variavel ja declarada");
 					}
@@ -225,7 +238,7 @@ COMANDO 	: E ';'
 				valor.nomeTemp = gentempcode();
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
-					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel && tabelaSimbolos[i].scope == escopototal)
 					{
 						yyerror("Variavel ja declarada");
 					}
@@ -660,8 +673,8 @@ E 			: '('E')'
 				} else {
 					bool encontrei = false;
 				TIPO_SIMBOLO variavel;
-				for(int i = 0; i < tabelaSimbolos.size(); i++){
-					if(tabelaSimbolos[i].nomeVariavel == $1.label){
+				for(int i = tabelaSimbolos.size(); i >= 0; i--){
+					if(tabelaSimbolos[i].nomeVariavel == $1.label && tabelaSimbolos[i].scope.size() <= escopototal.size() && tabelaSimbolos[i].scope.top()<=tabelaSimbolos[i].scope.top()){
 						variavel = tabelaSimbolos[i];
 						encontrei = true;
 					}
@@ -695,9 +708,9 @@ string gentempcode(){
 
 int main( int argc, char* argv[] )
 {
-
+    flag = 0;
 	var_temp_qnt = 0;
-    
+    escopototal.push(flag);
 	yyparse();
     //cout << printtabelaSimbolos();
 	return 0;
