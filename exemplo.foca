@@ -5,7 +5,15 @@ int main()
         int a;
         {
             int c;
+            c = 3;
+            a = 2;
         }
     }
-    int o;
+    {
+        float a;
+        {
+            a = 1.0;
+        }
+    }
+    c = 1;
 }

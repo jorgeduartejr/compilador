@@ -87,7 +87,7 @@ BLOCO		: '{' INICIO COMANDOS FIM'}'
 			{
 				//escopototal.push(flag);
 				//flag++;
-				$$.traducao = $2.traducao;
+				$$.traducao = $3.traducao;
 				//escopototal.pop();
 
 			}
@@ -97,12 +97,14 @@ INICIO      :
             {
 	            flag++; 
 				escopototal.push(flag);
+				$$.traducao = "";
 			}
             ;
 
 FIM         :
             {
 				escopototal.pop();
+				$$.traducao = "";
 			} 
 		    ;
 
