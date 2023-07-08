@@ -2,14 +2,10 @@ int main()
 {
     int c;
     {
-		c = 1;
-		{
-			float c;
-			c = 3;
-		}
-	}
-	{
-		int c;
-		c = 3;
-	}
+        int a;
+        {
+            int c;
+        }
+    }
+    int o;
 }

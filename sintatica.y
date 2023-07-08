@@ -50,6 +50,15 @@ string printtabelaSimbolos()
 	}
 	return n;
 }
+/*void printpilhasdeSimbolos()
+{
+	//string n = "";
+	for(int i = 0; i < tabelaSimbolos.size(); i++)
+	{
+		cout << "\t" << tabelaSimbolos[i].scope.top()<< " " <<tabelaSimbolos[i].nomeTemp<<endl;
+	}
+	//return n;
+}*/
 %}
 
 
@@ -69,18 +78,33 @@ string printtabelaSimbolos()
 S 			: TK_TIPO_INT TK_MAIN '(' ')' BLOCO
 			{
 				
-				cout << "/*Compilador FOCA*/\n" << "#include <iostream>\n#include<string.h>\n#include<math.h>\n#include<stdio.h>\nint main(void)\n{\n" << printtabelaSimbolos() << $5.traducao << "\treturn 0;\n}" << endl; 
-				
+				cout << "/*Compilador FOCA*/\n" << "#include <iostream>\n#include<string.h>\n#include<math.h>\n#include<stdio.h>\nint main(void)\n{\n" << printtabelaSimbolos() << $5.traducao  << "\treturn 0;\n}" << endl; 
+				//printpilhasdeSimbolos();
 			}
 			;
 
-BLOCO		: '{' COMANDOS '}'
+BLOCO		: '{' INICIO COMANDOS FIM'}'
 			{
+				//escopototal.push(flag);
+				//flag++;
 				$$.traducao = $2.traducao;
-				escopototal.pop();
+				//escopototal.pop();
 
 			}
 			;
+
+INICIO      : 
+            {
+	            flag++; 
+				escopototal.push(flag);
+			}
+            ;
+
+FIM         :
+            {
+				escopototal.pop();
+			} 
+		    ;
 
 COMANDOS	: COMANDO COMANDOS
 			{
@@ -95,8 +119,9 @@ COMANDOS	: COMANDO COMANDOS
 COMANDO 	: E ';'
             | BLOCO
 			{
-                flag++;
-				escopototal.push(flag);
+                //flag = flag + 1;
+				//escopototal.push(flag);
+				$$ = $1;
 
 			}
 			| TK_TIPO_INT TK_ID ';'
@@ -104,12 +129,15 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "int";
-				valor.nomeTemp = gentempcode();
+				valor.nomeTemp = gentempcode(); valor.scope = escopototal;
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
-					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel && tabelaSimbolos[i].scope == escopototal)
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
 					{
-						yyerror("Variavel ja declarada");
+					    if(tabelaSimbolos[i].scope.top() == escopototal.top())
+					    {
+						    yyerror("Variavel ja declarada");
+					    }
 					}
 				}
 				tabelaSimbolos.push_back(valor);
@@ -122,12 +150,15 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "int";
-				valor.nomeTemp = gentempcode();
+				valor.nomeTemp = gentempcode(); valor.scope = escopototal;
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
-					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel && tabelaSimbolos[i].scope == escopototal)
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
 					{
-						yyerror("Variavel ja declarada");
+					    if(tabelaSimbolos[i].scope.top() == escopototal.top())
+					    {
+						    yyerror("Variavel ja declarada");
+					    }
 					}
 				}
 				tabelaSimbolos.push_back(valor);
@@ -139,12 +170,15 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "int";
-				valor.nomeTemp = gentempcode();
+				valor.nomeTemp = gentempcode(); valor.scope = escopototal;
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
-					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel && tabelaSimbolos[i].scope == escopototal)
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
 					{
-						yyerror("Variavel ja declarada");
+					    if(tabelaSimbolos[i].scope.top() == escopototal.top())
+					    {
+						    yyerror("Variavel ja declarada");
+					    }
 					}
 				}
 				tabelaSimbolos.push_back(valor);
@@ -159,12 +193,15 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "int";
-				valor.nomeTemp = gentempcode();
+				valor.nomeTemp = gentempcode(); valor.scope = escopototal;
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
-					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel && tabelaSimbolos[i].scope == escopototal)
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
 					{
-						yyerror("Variavel ja declarada");
+					    if(tabelaSimbolos[i].scope.top() == escopototal.top())
+					    {
+						    yyerror("Variavel ja declarada");
+					    }
 					}
 				}
 				tabelaSimbolos.push_back(valor);
@@ -178,12 +215,15 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "char";
-				valor.nomeTemp = gentempcode();
+				valor.nomeTemp = gentempcode(); valor.scope = escopototal;
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
-					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel && tabelaSimbolos[i].scope == escopototal)
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
 					{
-						yyerror("Variavel ja declarada");
+					    if(tabelaSimbolos[i].scope.top() == escopototal.top())
+					    {
+						    yyerror("Variavel ja declarada");
+					    }
 					}
 				}
 				tabelaSimbolos.push_back(valor);
@@ -197,12 +237,15 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "float";
-				valor.nomeTemp = gentempcode();
+				valor.nomeTemp = gentempcode(); valor.scope = escopototal;
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
-					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel && tabelaSimbolos[i].scope == escopototal)
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
 					{
-						yyerror("Variavel ja declarada");
+					    if(tabelaSimbolos[i].scope.top() == escopototal.top())
+					    {
+						    yyerror("Variavel ja declarada");
+					    }
 					}
 				}
 				tabelaSimbolos.push_back(valor);
@@ -217,12 +260,15 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "float";
-				valor.nomeTemp = gentempcode();
+				valor.nomeTemp = gentempcode(); valor.scope = escopototal;
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
-					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel && tabelaSimbolos[i].scope == escopototal)
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
 					{
-						yyerror("Variavel ja declarada");
+					    if(tabelaSimbolos[i].scope.top() == escopototal.top())
+					    {
+						    yyerror("Variavel ja declarada");
+					    }
 					}
 				}
 				tabelaSimbolos.push_back(valor);
@@ -235,12 +281,15 @@ COMANDO 	: E ';'
 				TIPO_SIMBOLO valor;
 				valor.nomeVariavel = $2.label;
 				valor.tipoVariavel = "char";
-				valor.nomeTemp = gentempcode();
+				valor.nomeTemp = gentempcode(); valor.scope = escopototal;
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
-					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel && tabelaSimbolos[i].scope == escopototal)
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
 					{
-						yyerror("Variavel ja declarada");
+					    if(tabelaSimbolos[i].scope.top() == escopototal.top())
+					    {
+						    yyerror("Variavel ja declarada");
+					    }
 					}
 				}
 				tabelaSimbolos.push_back(valor);
@@ -628,7 +677,7 @@ E 			: '('E')'
 				bool encontrei = false;
 				TIPO_SIMBOLO variavel;
 				for(int i = 0; i < tabelaSimbolos.size(); i++){
-					if(tabelaSimbolos[i].nomeVariavel == $1.label){
+					if(tabelaSimbolos[i].nomeVariavel == $1.label ){
 						variavel = tabelaSimbolos[i];
 						encontrei = true;
 					}
@@ -674,7 +723,7 @@ E 			: '('E')'
 					bool encontrei = false;
 				TIPO_SIMBOLO variavel;
 				for(int i = tabelaSimbolos.size(); i >= 0; i--){
-					if(tabelaSimbolos[i].nomeVariavel == $1.label && tabelaSimbolos[i].scope.size() <= escopototal.size() && tabelaSimbolos[i].scope.top()<=tabelaSimbolos[i].scope.top()){
+					if(tabelaSimbolos[i].nomeVariavel == $1.label && tabelaSimbolos[i].scope.size() <= escopototal.size() && tabelaSimbolos[i].scope.top()<=escopototal.top()){
 						variavel = tabelaSimbolos[i];
 						encontrei = true;
 					}
