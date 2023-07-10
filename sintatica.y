@@ -117,7 +117,30 @@ COMANDOS	: COMANDO COMANDOS
 				$$.traducao = "";
 			}
 			;
+COMANDO		: IF_ELSE{ $$.traducao = $1.traducao;}
+			WHILE{ $$.traducao = $1.traducao;}
 
+			/* | DO_WHILE{ $$.traducao = $1.traducao;}  // tokens para implementar
+			| FOR{ $$.traducao = $1.traducao;}
+			| SWITCH{ $$.traducao = $1.traducao;} */
+			;
+IF_ELSE: TK_IF '(' E ')' BLOCO
+			{
+				$$.traducao = $3.traducao + "\tif(!(" + $3.label + "))\n\t{\n\t\tgoto " + $3.label + "else;\n\t}\n" + $5.traducao + "\tgoto " + $3.label + "fim;\n" + $3.label + "else:\n" + $7.traducao + $3.label + "fim:\n";
+			} // trocar as regras da gramatica, adicionar o comando bloco
+				// numerar a precedencia do if e do else, para montar uma pilha de ifs e elses
+
+			| TK_IF '(' E ')' BLOCO TK_ELSE BLOCO
+			{
+				$$.traducao = $3.traducao + "\tif(!(" + $3.label + "))\n\t{\n\t\tgoto " + $3.label + "else;\n\t}\n" + $5.traducao + "\tgoto " + $3.label + "fim;\n" + $3.label + "else:\n" + $7.traducao + $3.label + "fim:\n" + $9.traducao;
+			}
+			;
+WHILE	: TK_WHILE '(' E ')' BLOCO // contar numero de repeticoes
+									// numerar a precedencia do while, para montar uma pilha de whiles
+			{
+				$$.traducao = $3.traducao + "\tif(!(" + $3.label + "))\n\t{\n\t\tgoto " + $3.label + "fim;\n\t}\n" + $5.traducao + "\tgoto " + $3.label + ";\n" + $3.label + "fim:\n";
+			}
+			;
 COMANDO 	: E ';'
             | BLOCO
 			{
