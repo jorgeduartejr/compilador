@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <stack>
+#include <stdlib.h>
 
 
 #define YYSTYPE atributos
@@ -23,8 +24,13 @@ typedef struct{
 	stack<int> scope;
 } TIPO_SIMBOLO;
 
+union{
+	char* string;
+}
+
 int var_temp_qnt;
 vector<TIPO_SIMBOLO> tabelaSimbolos;
+type <string> expressaoString;
 int flag;
 int marcador;
 stack<int> escopototal;
@@ -67,6 +73,7 @@ string printtabelaSimbolos()
 %token TK_MAIN TK_ID TK_TIPO_INT TK_TIPO_FLOAT TK_TIPO_CHAR TK_TIPO_BOOL TK_CAST_INT TK_CAST_FLOAT //TK_CAST_CHAR TK_CAST_BOOL
 %token TK_FIM TK_ERROR 
 %token TK_IG TK_DIF TK_MAIG TK_MEIG TK_MAIOR TK_MENOR TK_AND TK_OR TK_NOT TK_MAIS_MAIS TK_MENOS_MENOS TK_IF TK_ELSE TK_WHILE TK_DO TK_FOR TK_SWITCH TK_CASE TK_BREAK TK_DEFAULT TK_CONTINUE TK_RETURN
+%token TK_STRING TK_PRINT TK_SCAN
 
 %start S
 
@@ -117,7 +124,16 @@ COMANDOS	: COMANDO COMANDOS
 				$$.traducao = "";
 			}
 			;
-COMANDO		: IF_ELSE{ $$.traducao = $1.traducao;}
+
+COMANDO: 	STRING {$$.traducao = strdup($1)}
+			;
+STRING: TK_STRING
+			{
+				$$.traducao = $1;
+			}
+			;
+
+COMANDO:	IF_ELSE{ $$.traducao = $1.traducao;}
 			WHILE{ $$.traducao = $1.traducao;}
 
 			/* | DO_WHILE{ $$.traducao = $1.traducao;}  // tokens para implementar
@@ -132,7 +148,7 @@ IF_ELSE: TK_IF '(' E ')' BLOCO
 
 			| TK_IF '(' E ')' BLOCO TK_ELSE BLOCO
 			{
-				$$.traducao = $3.traducao + "\tif(!(" + $3.label + "))\n\t{\n\t\tgoto " + $3.label + "else;\n\t}\n" + $5.traducao + "\tgoto " + $3.label + "fim;\n" + $3.label + "else:\n" + $7.traducao + $3.label + "fim:\n" + $9.traducao;
+				$$.traducao = $3.traducao + "\tif(!(" + $3.label + "))\n\t{\n\t\tgoto " + $3.label + "else;\n\t}\n" + $5.traducao + "\tgoto " + $3.label + "fim;\n" + $3.label + "else:\n" + $3.traducao + $3.label + "fim:\n" + $3.traducao;
 			}
 			;
 WHILE	: TK_WHILE '(' E ')' BLOCO // contar numero de repeticoes
