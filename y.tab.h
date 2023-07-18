@@ -81,16 +81,17 @@ extern int yydebug;
     TK_MAIS_MAIS = 282,            /* TK_MAIS_MAIS  */
     TK_MENOS_MENOS = 283,          /* TK_MENOS_MENOS  */
     TK_IF = 284,                   /* TK_IF  */
-    TK_ELSE = 285,                 /* TK_ELSE  */
-    TK_WHILE = 286,                /* TK_WHILE  */
-    TK_DO = 287,                   /* TK_DO  */
-    TK_FOR = 288,                  /* TK_FOR  */
-    TK_SWITCH = 289,               /* TK_SWITCH  */
-    TK_CASE = 290,                 /* TK_CASE  */
-    TK_BREAK = 291,                /* TK_BREAK  */
-    TK_DEFAULT = 292,              /* TK_DEFAULT  */
-    TK_CONTINUE = 293,             /* TK_CONTINUE  */
-    TK_RETURN = 294                /* TK_RETURN  */
+    TK_ELSE_IF = 285,              /* TK_ELSE_IF  */
+    TK_ELSE = 286,                 /* TK_ELSE  */
+    TK_WHILE = 287,                /* TK_WHILE  */
+    TK_DO = 288,                   /* TK_DO  */
+    TK_FOR = 289,                  /* TK_FOR  */
+    TK_SWITCH = 290,               /* TK_SWITCH  */
+    TK_CASE = 291,                 /* TK_CASE  */
+    TK_BREAK = 292,                /* TK_BREAK  */
+    TK_DEFAULT = 293,              /* TK_DEFAULT  */
+    TK_CONTINUE = 294,             /* TK_CONTINUE  */
+    TK_RETURN = 295                /* TK_RETURN  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -126,16 +127,17 @@ extern int yydebug;
 #define TK_MAIS_MAIS 282
 #define TK_MENOS_MENOS 283
 #define TK_IF 284
-#define TK_ELSE 285
-#define TK_WHILE 286
-#define TK_DO 287
-#define TK_FOR 288
-#define TK_SWITCH 289
-#define TK_CASE 290
-#define TK_BREAK 291
-#define TK_DEFAULT 292
-#define TK_CONTINUE 293
-#define TK_RETURN 294
+#define TK_ELSE_IF 285
+#define TK_ELSE 286
+#define TK_WHILE 287
+#define TK_DO 288
+#define TK_FOR 289
+#define TK_SWITCH 290
+#define TK_CASE 291
+#define TK_BREAK 292
+#define TK_DEFAULT 293
+#define TK_CONTINUE 294
+#define TK_RETURN 295
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

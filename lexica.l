@@ -66,6 +66,8 @@ STRING \"([^\"\n]|\\\")*\"
 
 "else"      { return TK_ELSE; }
 
+"else if"    { return TK_ELSE_IF; }
+
 "while"     { return TK_WHILE; }
 
 "for"       { return TK_FOR; }

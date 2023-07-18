@@ -4,7 +4,6 @@
 #include <sstream>
 #include <vector>
 #include <stack>
-#include <stdlib.h>
 
 
 #define YYSTYPE atributos
@@ -24,15 +23,11 @@ typedef struct{
 	stack<int> scope;
 } TIPO_SIMBOLO;
 
-union{
-	char* string;
-}
-
 int var_temp_qnt;
 vector<TIPO_SIMBOLO> tabelaSimbolos;
-type <string> expressaoString;
 int flag;
 int marcador;
+static int cont = 0;
 stack<int> escopototal;
 int yylex(void);
 void yyerror(string);
@@ -72,8 +67,7 @@ string printtabelaSimbolos()
 %token TK_NUM TK_REAL TK_BOOL TK_CHAR TK_OP_REL 
 %token TK_MAIN TK_ID TK_TIPO_INT TK_TIPO_FLOAT TK_TIPO_CHAR TK_TIPO_BOOL TK_CAST_INT TK_CAST_FLOAT //TK_CAST_CHAR TK_CAST_BOOL
 %token TK_FIM TK_ERROR 
-%token TK_IG TK_DIF TK_MAIG TK_MEIG TK_MAIOR TK_MENOR TK_AND TK_OR TK_NOT TK_MAIS_MAIS TK_MENOS_MENOS TK_IF TK_ELSE TK_WHILE TK_DO TK_FOR TK_SWITCH TK_CASE TK_BREAK TK_DEFAULT TK_CONTINUE TK_RETURN
-%token TK_STRING TK_PRINT TK_SCAN
+%token TK_IG TK_DIF TK_MAIG TK_MEIG TK_MAIOR TK_MENOR TK_AND TK_OR TK_NOT TK_MAIS_MAIS TK_MENOS_MENOS TK_IF TK_ELSE_IF TK_ELSE TK_WHILE TK_DO TK_FOR TK_SWITCH TK_CASE TK_BREAK TK_DEFAULT TK_CONTINUE TK_RETURN
 
 %start S
 
@@ -124,47 +118,44 @@ COMANDOS	: COMANDO COMANDOS
 				$$.traducao = "";
 			}
 			;
-
-COMANDO: 	STRING {$$.traducao = strdup($1)}
-			;
-STRING: TK_STRING
+CONDICAO	: TK_IF '(' E ')' BLOCO
 			{
-				$$.traducao = $1;
+				cont ++;
+                $$.label = gentempcode();
+                addtabSimbolos($$.label,"int");
+                $$.traducao =$3.traducao + "\t" + $$.label + " != " + $3.label + ";\n"; 
+                $$.traducao+="\tif(" + $$.label + ") goto fim_if_Label" + to_string(cont) + ";\n" 
+				+ $5.traducao + "\tfim_if_Label"+ to_string(cont) + ":\n\n";
 			}
-			;
-
-COMANDO:	IF_ELSE{ $$.traducao = $1.traducao;}
-			WHILE{ $$.traducao = $1.traducao;}
-
-			/* | DO_WHILE{ $$.traducao = $1.traducao;}  // tokens para implementar
-			| FOR{ $$.traducao = $1.traducao;}
-			| SWITCH{ $$.traducao = $1.traducao;} */
-			;
-IF_ELSE: TK_IF '(' E ')' BLOCO
-			{
-				$$.traducao = $3.traducao + "\tif(!(" + $3.label + "))\n\t{\n\t\tgoto " + $3.label + "else;\n\t}\n" + $5.traducao + "\tgoto " + $3.label + "fim;\n" + $3.label + "else:\n" + $7.traducao + $3.label + "fim:\n";
-			} // trocar as regras da gramatica, adicionar o comando bloco
-				// numerar a precedencia do if e do else, para montar uma pilha de ifs e elses
-
-			| TK_IF '(' E ')' BLOCO TK_ELSE BLOCO
-			{
-				$$.traducao = $3.traducao + "\tif(!(" + $3.label + "))\n\t{\n\t\tgoto " + $3.label + "else;\n\t}\n" + $5.traducao + "\tgoto " + $3.label + "fim;\n" + $3.label + "else:\n" + $3.traducao + $3.label + "fim:\n" + $3.traducao;
-			}
-			;
-WHILE	: TK_WHILE '(' E ')' BLOCO // contar numero de repeticoes
-									// numerar a precedencia do while, para montar uma pilha de whiles
-			{
-				$$.traducao = $3.traducao + "\tif(!(" + $3.label + "))\n\t{\n\t\tgoto " + $3.label + "fim;\n\t}\n" + $5.traducao + "\tgoto " + $3.label + ";\n" + $3.label + "fim:\n";
-			}
-			;
+			|TK_ELSE_IF'(' E ')' BLOCO
+            {	
+				cont ++;
+                $$.label = gentempcode();
+                addtabSimbolos($$.label,"int");
+                $$.traducao = $3.traducao + "\t" + $$.label + " != " + $3.label + ";\n"; 
+                $$.traducao+="\tif("+ $$.label + ") goto fim_else_if_Label" + to_string(cont) + ";\n" 
+				+ $5.traducao + "\tfim_else_if_Label" + to_string(cont) + ":\n\n";
+            }
+			| CONDICAO TK_ELSE BLOCO
+            {
+                $$.traducao= $1.traducao + "\tif(!" + $1.label + ") goto fim_else_Label" + to_string(cont) 
+				+ ";\n" + $3.traducao + "\tfim_else_Label" + to_string(cont) + ";\n\n";
+            }
+			/* | TK_WHILE '(' E ')' BLOCO{} */
+			/* | TK_DO BLOCO TK_WHILE '(' E ')' BLOCO
+			{} */
+			/* | TK_FOR '(' E ';' E ';' E ')' BLOCO
+			{} */
+			/* | TK_SWITCH '(' E ')' '{' CASES DEFAULT '}'
+			{} */
+			/* | TK_BREAK ';'
+			{} */
 COMANDO 	: E ';'
-            | BLOCO
+			| CONDICAO
+			| BLOCO
 			{
-                //flag = flag + 1;
-				//escopototal.push(flag);
 				$$ = $1;
-
-			}
+			} 
 			| TK_TIPO_INT TK_ID ';'
 			{
 				TIPO_SIMBOLO valor;
@@ -466,7 +457,12 @@ E 			: '('E')'
 			}
 			| E TK_IG E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{	
-				
+				if ($1.tipo != "bool"){
+                    yyerror("ERRO! Operação inválida");
+                }
+                if ($3.tipo != "bool"){
+                    yyerror("ERRO! Operação inválida");
+                }
 				if($1.tipo != $3.tipo) 
 				{
 					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
@@ -491,8 +487,12 @@ E 			: '('E')'
 			}
 			| E TK_DIF E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
-				//$$.label = gentempcode();
-				//$$.tipo = "bool";
+				if ($1.tipo != "bool"){
+                    yyerror("ERRO! Operação inválida");
+                }
+                if ($3.tipo != "bool"){
+                    yyerror("ERRO! Operação inválida");
+                }
 				if($1.tipo != $3.tipo) 
 				{
 					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
@@ -518,6 +518,12 @@ E 			: '('E')'
 			}
 			| E TK_MAIOR E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
+				// if ($1.tipo != "bool"){
+                //     yyerror("ERRO! Operação inválida");
+                // }
+                // if ($3.tipo != "bool"){
+                //     yyerror("ERRO! Operação inválida");
+                // }
 				if($1.tipo != $3.tipo) 
 				{
 					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
@@ -538,10 +544,17 @@ E 			: '('E')'
 				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
 					    " = " + castvar + " > " + $3.label + ";\n";
 					}
+					
 				} 
 			}
 			| E TK_MENOR E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
+				// if ($1.tipo != "bool"){
+                //     yyerror("ERRO! Operação inválida");
+                // }
+                // if ($3.tipo != "bool"){
+                //     yyerror("ERRO! Operação inválida");
+                // }
 				if($1.tipo != $3.tipo) 
 				{
 					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
@@ -565,8 +578,14 @@ E 			: '('E')'
 				} 
 			}
 			| E TK_MAIG E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
-			{
-				if($1.tipo != $3.tipo) 
+			{	
+				// if ($1.tipo != "bool"){
+                //     yyerror("ERRO! Operação inválida");
+                // }
+                // if ($3.tipo != "bool"){
+                //     yyerror("ERRO! Operação inválida");
+                // }
+				// if($1.tipo != $3.tipo) 
 				{
 					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
 					{
@@ -590,7 +609,13 @@ E 			: '('E')'
 			}
 			| E TK_MEIG E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
-				if($1.tipo != $3.tipo) 
+				// if ($1.tipo != "bool"){
+                //     yyerror("ERRO! Operação inválida");
+                // }
+                // if ($3.tipo != "bool"){
+                //     yyerror("ERRO! Operação inválida");
+                // }
+				// if($1.tipo != $3.tipo) 
 				{
 					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
 					{
@@ -613,8 +638,14 @@ E 			: '('E')'
 				} 
 			}
 			| E TK_AND E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
-			{
-				if($1.tipo != $3.tipo) 
+			{	
+				// if ($1.tipo != "bool"){
+                //     yyerror("ERRO! Operação inválida");
+                // }
+                // if ($3.tipo != "bool"){
+                //     yyerror("ERRO! Operação inválida");
+                // }
+				// if($1.tipo != $3.tipo) 
 				{
 					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
 					{
@@ -637,8 +668,14 @@ E 			: '('E')'
 				} 
 			}
 			| E TK_OR E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
-			{
-				if($1.tipo != $3.tipo) 
+			{	
+				// if ($1.tipo != "bool"){
+                //     yyerror("ERRO! Operação inválida");
+                // }
+                // if ($3.tipo != "bool"){
+                //     yyerror("ERRO! Operação inválida");
+                // }
+				// if($1.tipo != $3.tipo) 
 				{
 					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
 					{
@@ -661,7 +698,7 @@ E 			: '('E')'
 				} 
 			}
 			| TK_NOT E
-			{
+			{	
 				$$.label = gentempcode();
 				$$.traducao = $2.traducao + "\t" + $$.label +
 				" = ! " + $2.label + ";\n";
@@ -756,7 +793,7 @@ E 			: '('E')'
 			| TK_ID
 			{
 				if ($1.label == "true" || $1.label == "false"){
-					$$.tipo = "int";
+					$$.tipo = "bool"; 
 					$$.label = gentempcode();
 					addtabSimbolos($$.label, $$.tipo);
 					$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
@@ -771,7 +808,7 @@ E 			: '('E')'
 				}
 				if(!encontrei){
 					if($1.label == "true" || $1.label == "false"){
-						$$.tipo = "int";
+						$$.tipo = "bool";
 					} else {
 						yyerror("Variavel nao declarada");
 					}
