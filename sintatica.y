@@ -4,7 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <stack>
-
+#include <set>
 
 #define YYSTYPE atributos
 
@@ -64,8 +64,8 @@ string printtabelaSimbolos()
 
 
 
-%token TK_NUM TK_REAL TK_BOOL TK_CHAR TK_OP_REL 
-%token TK_MAIN TK_ID TK_TIPO_INT TK_TIPO_FLOAT TK_TIPO_CHAR TK_TIPO_BOOL TK_CAST_INT TK_CAST_FLOAT //TK_CAST_CHAR TK_CAST_BOOL
+%token TK_NUM TK_REAL TK_BOOL TK_CHAR TK_OP_REL  TK_STRING _STRING
+%token TK_MAIN TK_ID TK_TIPO_INT TK_TIPO_FLOAT TK_TIPO_CHAR TK_TIPO_BOOL TK_CAST_INT TK_CAST_FLOAT TK_TIPO_STRING //TK_CAST_CHAR TK_CAST_BOOL
 %token TK_FIM TK_ERROR 
 %token TK_IG TK_DIF TK_MAIG TK_MEIG TK_MAIOR TK_MENOR TK_AND TK_OR TK_NOT TK_MAIS_MAIS TK_MENOS_MENOS TK_IF TK_ELSE_IF TK_ELSE TK_WHILE TK_DO TK_FOR TK_SWITCH TK_CASE TK_BREAK TK_DEFAULT TK_CONTINUE TK_RETURN
 
@@ -329,11 +329,62 @@ COMANDO 	: E ';'
 				$$.traducao = "";
 				$$.label = "";
 			}
+			| TK_TIPO_STRING TK_ID ';' // verificar isso aqui depois, pq pode ser que seja com vector
+			{
+				TIPO_SIMBOLO valor;
+				valor.nomeVariavel = $2.label;
+				valor.tipoVariavel =  "char*";
+				valor.nomeTemp = gentempcode()  ; valor.scope = escopototal;
+				for(int i = 0; i < tabelaSimbolos.size(); i++)
+				{
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
+					{
+					    if(tabelaSimbolos[i].scope.top() == escopototal.top())
+					    {
+						    yyerror("Variavel ja declarada");
+					    }
+					}
+				}
+				tabelaSimbolos.push_back(valor);
+
+				$$.traducao = "";
+				$$.label = "";
+			}
+			| TK_TIPO_STRING TK_ID  '=' E ';'
+			{
+				std::string str ($4.label);
+				string a = '['+ std::to_string(str.length())+']';
+				TIPO_SIMBOLO valor;
+				//string a = '['+ $3.label +']';
+				valor.nomeVariavel = $5.label;
+				valor.tipoVariavel = "char" + a;
+				valor.nomeTemp = gentempcode(); valor.scope = escopototal;
+				for(int i = 0; i < tabelaSimbolos.size(); i++)
+				{
+					if(tabelaSimbolos[i].nomeVariavel == valor.nomeVariavel)
+					{
+					    if(tabelaSimbolos[i].scope.top() == escopototal.top())
+					    {
+						    yyerror("Variavel ja declarada");
+					    }
+					}
+				}
+				tabelaSimbolos.push_back(valor);
+                $2.label = valor.nomeTemp;
+				$2.tipo = valor.tipoVariavel;
+				$$.traducao = $4.traducao + "\t" + "strcpy" + '(' + $2.label + " , " + $4.label + ')'  + ";\n";
+				$$.label = "";
+			}
 			;
 			
 E 			: '('E')'
             {
 			    $$ = $2;
+			}
+			|TK_STRING
+			{
+				$1.tipo = "string";
+				$$ = $1;
 			}
             | E '+' E //vou colocar o tipo float como default
 			{
@@ -754,17 +805,37 @@ E 			: '('E')'
 			{
 				bool encontrei = false;
 				TIPO_SIMBOLO variavel;
-				for(int i = 0; i < tabelaSimbolos.size(); i++){
-					if(tabelaSimbolos[i].nomeVariavel == $1.label ){
-						variavel = tabelaSimbolos[i];
-						encontrei = true;
-					}
-				}
+				stack<int> ordem = escopototal;
+                set<int> referencias;
+                //int bob;
+                bool fin;
+                while(!ordem.empty()){
+                    //bob = ordem.pop();
+                    referencias.insert(ordem.top());
+                    ordem.pop();
+                }
+                for(int i = 0; i < tabelaSimbolos.size(); i++){
+                    fin = referencias.find(tabelaSimbolos[i].scope.top()) != referencias.end();
+                    if(tabelaSimbolos[i].nomeVariavel == $1.label  && tabelaSimbolos[i].scope.size() <= escopototal.size() && fin == true){
+                        variavel = tabelaSimbolos[i];
+                        encontrei = true;
+                    }
+                }
 				if(!encontrei){
 					yyerror("Variavel nao declarada");
 				}
-				$1.label = variavel.nomeTemp;
-				$$.traducao = $1.traducao + $3.traducao + "\t" +  $1.label + " = " + $3.label + ";\n";
+				if($3.tipo == "string")
+				{
+					$1.label = variavel.nomeTemp;
+					std::string criativo ($3.label);
+					string tamanho = std::to_string(criativo.length()); 
+                    $$.traducao = "\t" + $1.label + '=' + "malloc" + '(' + tamanho + '*' + "sizeof(char*)" + ')' + ";\n" + $1.traducao + $3.traducao + "\t" + "strcpy(" + $1.label + " , " + $3.label + ')' + ";\n";
+				}
+				else
+				{
+				    $1.label = variavel.nomeTemp;
+				    $$.traducao = $1.traducao + $3.traducao + "\t" +  $1.label + " = " + $3.label + ";\n";
+				}
 			}
 			| TK_NUM
 			{	
@@ -789,7 +860,10 @@ E 			: '('E')'
 				addtabSimbolos($$.label, $$.tipo);
 				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
 			} */
-
+            |TK_STRING
+			{
+				$$.tipo = "char";
+			}
 			| TK_ID
 			{
 				if ($1.label == "true" || $1.label == "false"){
@@ -797,15 +871,26 @@ E 			: '('E')'
 					$$.label = gentempcode();
 					addtabSimbolos($$.label, $$.tipo);
 					$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
-				} else {
+				} 
+				else {
 					bool encontrei = false;
 				TIPO_SIMBOLO variavel;
-				for(int i = tabelaSimbolos.size(); i >= 0; i--){
-					if(tabelaSimbolos[i].nomeVariavel == $1.label && tabelaSimbolos[i].scope.size() <= escopototal.size() && tabelaSimbolos[i].scope.top()<=escopototal.top()){
-						variavel = tabelaSimbolos[i];
-						encontrei = true;
-					}
-				}
+				stack<int> ordem = escopototal;
+                set<int> referencias;
+                //int bob;
+                bool fin;
+                while(!ordem.empty()){
+                    //bob = ordem.pop();
+                    referencias.insert(ordem.top());
+                    ordem.pop();
+                }
+                for(int i = 0; i < tabelaSimbolos.size(); i++){
+                    fin = referencias.find(tabelaSimbolos[i].scope.top()) != referencias.end();
+                    if(tabelaSimbolos[i].nomeVariavel == $1.label  && tabelaSimbolos[i].scope.size() <= escopototal.size() && fin == true){
+                        variavel = tabelaSimbolos[i];
+                        encontrei = true;
+                    }
+                }
 				if(!encontrei){
 					if($1.label == "true" || $1.label == "false"){
 						$$.tipo = "bool";

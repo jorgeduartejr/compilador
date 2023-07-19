@@ -12,7 +12,7 @@ REAL {NUM}+("."{NUM}+)?
 ID {LETRA}({LETRA}|{NUM})*
 CHAR \'({LETRA}|{NUM})\'
 BOOL "true"|"false"
-STRING \"([^\"\n]|\\\")*\"
+STRING \"(({LETRA}|{NUM}|{ESPACO}|[(){}[];,]|[+-/=%$#@!&¨<>,.;|^~`´?]|[éÉçÇãÃáÁÀàÊêõÕôôÔÓóÒòÚú])+)?\"
 
 %%
 
@@ -78,6 +78,9 @@ STRING \"([^\"\n]|\\\")*\"
 
 "continue"  { return TK_CONTINUE; }
 
+"string"    { return TK_TIPO_STRING; }
+
+{STRING}    { yylval.label = yytext; return TK_STRING; }
 {NUM}		{ yylval.label = yytext; return TK_NUM; }
 {ID}		{ yylval.label = yytext; return TK_ID; }
 {REAL}      { yylval.label = yytext; return TK_REAL; }
