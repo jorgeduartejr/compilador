@@ -47,7 +47,7 @@ string printtabelaSimbolos()
 	string n = "";
 	for(int i = 0; i < tabelaSimbolos.size(); i++)
 	{
-		n += "\t" + tabelaSimbolos[i].tipoVariavel + "\t" + tabelaSimbolos[i].nomeTemp + "\n";
+		n += "\t" + tabelaSimbolos[i].tipoVariavel + "\t" + tabelaSimbolos[i].nomeTemp + ";\n";
 	}
 	return n;
 }
@@ -79,7 +79,7 @@ string printtabelaSimbolos()
 S 			: TK_TIPO_INT TK_MAIN '(' ')' BLOCO
 			{
 				
-				cout << "/*Compilador FOCA*/\n" << "#include <iostream>\n#include<string.h>\n#include<math.h>\n#include<stdio.h>\nint main(void)\n{\n" << printtabelaSimbolos() << $5.traducao  << "\treturn 0;\n}" << endl; 
+				cout << "/*Compilador XGH*/\n" << "#include <iostream>\n#include<string.h>\n#include<math.h>\n#include<stdio.h>\nint main(void)\n{\n" << printtabelaSimbolos() << $5.traducao  << "\treturn 0;\n}" << endl; 
 				//printpilhasdeSimbolos();
 			}
 			;
@@ -353,7 +353,7 @@ COMANDO 	: E ';'
 			| TK_TIPO_STRING TK_ID  '=' E ';'
 			{
 				std::string str ($4.label);
-				string a = '['+ std::to_string(str.length())+']';
+				string a = '['+ std::to_string(str.length()-1)+']';
 				TIPO_SIMBOLO valor;
 				//string a = '['+ $3.label +']';
 				valor.nomeVariavel = $5.label;
@@ -828,7 +828,7 @@ E 			: '('E')'
 				{
 					$1.label = variavel.nomeTemp;
 					std::string criativo ($3.label);
-					string tamanho = std::to_string(criativo.length()); 
+					string tamanho = std::to_string(criativo.length()-1); 
                     $$.traducao = "\t" + $1.label + '=' + "malloc" + '(' + tamanho + '*' + "sizeof(char*)" + ')' + ";\n" + $1.traducao + $3.traducao + "\t" + "strcpy(" + $1.label + " , " + $3.label + ')' + ";\n";
 				}
 				else
@@ -860,10 +860,6 @@ E 			: '('E')'
 				addtabSimbolos($$.label, $$.tipo);
 				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
 			} */
-            |TK_STRING
-			{
-				$$.tipo = "char";
-			}
 			| TK_ID
 			{
 				if ($1.label == "true" || $1.label == "false"){

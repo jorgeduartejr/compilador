@@ -116,7 +116,7 @@ string printtabelaSimbolos()
 	string n = "";
 	for(int i = 0; i < tabelaSimbolos.size(); i++)
 	{
-		n += "\t" + tabelaSimbolos[i].tipoVariavel + "\t" + tabelaSimbolos[i].nomeTemp + "\n";
+		n += "\t" + tabelaSimbolos[i].tipoVariavel + "\t" + tabelaSimbolos[i].nomeTemp + ";\n";
 	}
 	return n;
 }
@@ -589,7 +589,7 @@ union yyalloc
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  9
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  47
+#define YYNRULES  46
 /* YYNSTATES -- Number of states.  */
 #define YYNSTATES  102
 
@@ -646,7 +646,7 @@ static const yytype_int16 yyrline[] =
      139,   153,   154,   155,   159,   180,   201,   223,   245,   267,
      290,   311,   332,   353,   380,   384,   389,   419,   449,   479,
      509,   539,   570,   601,   631,   661,   691,   721,   751,   757,
-     770,   782,   793,   804,   840,   848,   863,   867
+     770,   782,   793,   804,   840,   848,   863
 };
 #endif
 
@@ -715,7 +715,7 @@ static const yytype_int16 yypact[] =
 static const yytype_int8 yydefact[] =
 {
        0,     0,     0,     0,     1,     0,     0,     4,     2,     7,
-      44,    45,    25,    47,     0,     0,     0,     0,     0,     0,
+      44,    45,    25,    46,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,    13,     5,    12,     7,     0,
        0,     0,     0,     0,     0,    41,    42,     0,    38,     0,
        0,     0,     0,     0,     6,     0,     0,     0,     0,     0,
@@ -852,7 +852,7 @@ static const yytype_int8 yyr1[] =
       60,    61,    61,    61,    61,    61,    61,    61,    61,    61,
       61,    61,    61,    61,    62,    62,    62,    62,    62,    62,
       62,    62,    62,    62,    62,    62,    62,    62,    62,    62,
-      62,    62,    62,    62,    62,    62,    62,    62
+      62,    62,    62,    62,    62,    62,    62
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -862,7 +862,7 @@ static const yytype_int8 yyr2[] =
        3,     2,     1,     1,     3,     3,     5,     5,     5,     5,
        3,     3,     3,     5,     3,     1,     3,     3,     3,     3,
        3,     3,     3,     3,     3,     3,     3,     3,     2,     2,
-       2,     2,     2,     3,     1,     1,     1,     1
+       2,     2,     2,     3,     1,     1,     1
 };
 
 
@@ -1561,7 +1561,7 @@ yyreduce:
 #line 80 "sintatica.y"
                         {
 				
-				cout << "/*Compilador FOCA*/\n" << "#include <iostream>\n#include<string.h>\n#include<math.h>\n#include<stdio.h>\nint main(void)\n{\n" << printtabelaSimbolos() << yyvsp[0].traducao  << "\treturn 0;\n}" << endl; 
+				cout << "/*Compilador XGH*/\n" << "#include <iostream>\n#include<string.h>\n#include<math.h>\n#include<stdio.h>\nint main(void)\n{\n" << printtabelaSimbolos() << yyvsp[0].traducao  << "\treturn 0;\n}" << endl; 
 				//printpilhasdeSimbolos();
 			}
 #line 1568 "y.tab.c"
@@ -1891,7 +1891,7 @@ yyreduce:
 #line 354 "sintatica.y"
                         {
 				std::string str (yyvsp[-1].label);
-				string a = '['+ std::to_string(str.length())+']';
+				string a = '['+ std::to_string(str.length()-1)+']';
 				TIPO_SIMBOLO valor;
 				//string a = '['+ $3.label +']';
 				valor.nomeVariavel = yyvsp[0].label;
@@ -2444,7 +2444,7 @@ yyreduce:
 				{
 					yyvsp[-2].label = variavel.nomeTemp;
 					std::string criativo (yyvsp[0].label);
-					string tamanho = std::to_string(criativo.length()); 
+					string tamanho = std::to_string(criativo.length()-1); 
                     yyval.traducao = "\t" + yyvsp[-2].label + '=' + "malloc" + '(' + tamanho + '*' + "sizeof(char*)" + ')' + ";\n" + yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + "strcpy(" + yyvsp[-2].label + " , " + yyvsp[0].label + ')' + ";\n";
 				}
 				else
@@ -2481,14 +2481,6 @@ yyreduce:
 
   case 46:
 #line 864 "sintatica.y"
-                        {
-				yyval.tipo = "char";
-			}
-#line 2488 "y.tab.c"
-    break;
-
-  case 47:
-#line 868 "sintatica.y"
                         {
 				if (yyvsp[0].label == "true" || yyvsp[0].label == "false"){
 					yyval.tipo = "bool"; 
@@ -2529,11 +2521,11 @@ yyreduce:
 				yyval.traducao = "\t" + yyval.label + " = " + yyvsp[0].label + ";\n";
 				}
 			}
-#line 2533 "y.tab.c"
+#line 2525 "y.tab.c"
     break;
 
 
-#line 2537 "y.tab.c"
+#line 2529 "y.tab.c"
 
       default: break;
     }
@@ -2765,7 +2757,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 910 "sintatica.y"
+#line 906 "sintatica.y"
 
 
 #include "lex.yy.c"
