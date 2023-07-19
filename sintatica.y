@@ -79,7 +79,7 @@ string printtabelaSimbolos()
 S 			: TK_TIPO_INT TK_MAIN '(' ')' BLOCO
 			{
 				
-				cout << "/*Compilador XGH*/\n" << "#include <iostream>\n#include<string.h>\n#include<math.h>\n#include<stdio.h>\nint main(void)\n{\n" << printtabelaSimbolos() << $5.traducao  << "\treturn 0;\n}" << endl; 
+				cout << "/*Compilador InsaneLabz XGH*/\n" << "#include <iostream>\n#include<string.h>\n#include<math.h>\n#include<stdio.h>\nint main(void)\n{\n" << printtabelaSimbolos() << $5.traducao  << "\treturn 0;\n}" << endl; 
 				//printpilhasdeSimbolos();
 			}
 			;
@@ -141,6 +141,66 @@ CONDICAO	: TK_IF '(' E ')' BLOCO
                 $$.traducao= $1.traducao + "\tif(!" + $1.label + ") goto fim_else_Label" + to_string(cont) 
 				+ ";\n" + $3.traducao + "\tfim_else_Label" + to_string(cont) + ";\n\n";
             }
+			;
+LOOP        : TK_WHILE '(' E ')' '{'INICIO COMANDOS BREAK1 FIM'}'
+            {
+                $$.label = gentempcode();
+                string tempVar = gentempcode();
+                addtabSimbolos($$.label,"int");
+
+                //Adicionando na tabela de simbolos a temporária que verifica se while é verdadeiro.
+                TIPO_SIMBOLO temp;
+                temp.nomeVariavel = tempVar;
+                temp.tipoVariavel = "int";
+                temp.scope = escopototal;
+                tabelaSimbolos.push_back(temp); 
+
+                $$.traducao ="inicio_while"+ to_string(cont) +":\n"+ $3.traducao + "\t" + $$.label + " = " + $3.label + ";\n\t" + tempVar + " = !" + $$.label + ";\n"; 
+                $$.traducao+="\tif(" + tempVar + ") goto fim_Label"+ to_string(cont)  +";\n" + $7.traducao + $8.traducao + "\tgoto inicio_while"+ to_string(cont) +";\n" +"fim_Label" + to_string(cont) + ":\n";
+            }
+            | TK_FOR '('E ';' E ';' E')' '{'INICIO COMANDOS BREAK1 FIM'}'
+            {
+                $$.label = gentempcode();
+                string tempVar = gentempcode();
+                addtabSimbolos($$.label,"int");
+                $$.traducao ="inicio_for"+ to_string(cont) +":\n"+ $3.traducao + $5.traducao + "\t" + $$.label + " = " + $5.label + ";\n\t" + tempVar + " = !" + $$.label + ";\n"; 
+                $$.traducao+="\tif(" + tempVar + ") goto fim_Label"+ to_string(cont) +";\n" + $11.traducao + $12.traducao + $7.traducao +"\tgoto inicio_for"+ to_string(cont) +";\n" +"fim_Label" + to_string(cont) + ":\n\n";
+
+                //Adicionando na tabela de simbolos a temporária que verifica se while é verdadeiro.
+                TIPO_SIMBOLO temp;
+                temp.nomeVariavel = tempVar;
+                temp.tipoVariavel = "int";
+                temp.scope = escopototal;
+                tabelaSimbolos.push_back(temp);
+            }
+            |TK_DO '{'INICIO COMANDOS BREAK1 FIM '}' TK_WHILE '(' E ')' ';'
+            {
+                $$.label = gentempcode();
+                string tempVar = gentempcode();
+                addtabSimbolos($$.label,"int");
+
+                $$.traducao ="inicio_do_while"+ to_string(cont) +":\n"+ $4.traducao + $5.traducao; 
+                $$.traducao+=$10.traducao + "\tif(" + $10.label + ") goto inicio_do_while"+ to_string(cont) + "\n";
+            }
+            ;
+
+            //break e continue pro while
+BREAK1       : TK_BREAK ';' COMANDOS BREAK1
+            {
+                
+                $$.traducao = "\tgoto fim_Label" + to_string(cont) + ";\n" + $3.traducao + $4.traducao;
+            }
+            |
+            TK_CONTINUE ';' COMANDOS BREAK1
+            {
+                $$.traducao = "\tgoto fim_Label" + to_string(cont) + ";\n" + $3.traducao + $4.traducao;
+            }
+            |
+            {
+                cont ++;
+                $$.traducao = "";
+            }
+            ;
 			/* | TK_WHILE '(' E ')' BLOCO{} */
 			/* | TK_DO BLOCO TK_WHILE '(' E ')' BLOCO
 			{} */
@@ -152,6 +212,7 @@ CONDICAO	: TK_IF '(' E ')' BLOCO
 			{} */
 COMANDO 	: E ';'
 			| CONDICAO
+			| LOOP 
 			| BLOCO
 			{
 				$$ = $1;
@@ -508,13 +569,13 @@ E 			: '('E')'
 			}
 			| E TK_IG E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{	
-				if ($1.tipo != "bool"){
-                    yyerror("ERRO! Operação inválida");
-                }
-                if ($3.tipo != "bool"){
-                    yyerror("ERRO! Operação inválida");
-                }
-				if($1.tipo != $3.tipo) 
+				// if ($1.tipo != "bool"){
+                //     yyerror("ERRO! Operação inválida");
+                // }
+                // if ($3.tipo != "bool"){
+                //     yyerror("ERRO! Operação inválida");
+                // }
+				// if($1.tipo != $3.tipo) 
 				{
 					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
 					{
@@ -594,9 +655,19 @@ E 			: '('E')'
 				        addtabSimbolos( $$.label, "float");
 				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
 					    " = " + castvar + " > " + $3.label + ";\n";
+					} 
+				} else {
+						$$.label = gentempcode();
+						$$.tipo = $1.tipo;
+						$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + // a = $1, b = $3, c = $$ 
+						" = " + $1.label + " > " + $3.label + ";\n";  // caracter = " < "
+						// Atualizar tipo da temporária com base nos tipos dos operandos
+						TIPO_SIMBOLO temp;
+						temp.nomeVariavel = $$.label;
+						temp.scope = escopototal;
+						temp.tipoVariavel = $$.tipo;
+						tabelaSimbolos.push_back(temp);
 					}
-					
-				} 
 			}
 			| E TK_MENOR E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
@@ -626,7 +697,18 @@ E 			: '('E')'
 				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
 					    " = " + castvar + " < " + $3.label + ";\n";
 					}
-				} 
+				} else {
+					$$.label = gentempcode();
+					$$.tipo = $1.tipo;
+					$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + // a = $1, b = $3, c = $$ 
+						" = " + $1.label + " < " + $3.label + ";\n";  // caracter = " < "
+					// Atualizar tipo da temporária com base nos tipos dos operandos
+					TIPO_SIMBOLO temp;
+					temp.nomeVariavel = $$.label;
+					temp.scope = escopototal;
+					temp.tipoVariavel = $$.tipo;
+					tabelaSimbolos.push_back(temp);
+				}
 			}
 			| E TK_MAIG E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{	
@@ -636,8 +718,7 @@ E 			: '('E')'
                 // if ($3.tipo != "bool"){
                 //     yyerror("ERRO! Operação inválida");
                 // }
-				// if($1.tipo != $3.tipo) 
-				{
+				if($1.tipo != $3.tipo) {
 					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
 					{
 						string castvar = gentempcode();
@@ -657,7 +738,20 @@ E 			: '('E')'
 					    " = " + castvar + " >= " + $3.label + ";\n";
 					}
 				} 
+				else {
+					$$.label = gentempcode();
+					$$.tipo = $1.tipo;
+					$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + // a = $1, b = $3, c = $$ 
+						" = " + $1.label + " >= " + $3.label + ";\n";  // caracter = " < "
+					// Atualizar tipo da temporária com base nos tipos dos operandos
+					TIPO_SIMBOLO temp;
+					temp.nomeVariavel = $$.label;
+					temp.scope = escopototal;
+					temp.tipoVariavel = $$.tipo;
+					tabelaSimbolos.push_back(temp);
+				}
 			}
+
 			| E TK_MEIG E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{
 				// if ($1.tipo != "bool"){
@@ -666,7 +760,7 @@ E 			: '('E')'
                 // if ($3.tipo != "bool"){
                 //     yyerror("ERRO! Operação inválida");
                 // }
-				// if($1.tipo != $3.tipo) 
+				if($1.tipo != $3.tipo) 
 				{
 					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
 					{
@@ -686,17 +780,28 @@ E 			: '('E')'
 				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
 					    " = " + castvar + " <= " + $3.label + ";\n";
 					}
-				} 
+				} else {
+					$$.label = gentempcode();
+					$$.tipo = $1.tipo;
+					$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + // a = $1, b = $3, c = $$ 
+						" = " + $1.label + " <= " + $3.label + ";\n";  // caracter = " < "
+					// Atualizar tipo da temporária com base nos tipos dos operandos
+					TIPO_SIMBOLO temp;
+					temp.nomeVariavel = $$.label;
+					temp.scope = escopototal;
+					temp.tipoVariavel = $$.tipo;
+					tabelaSimbolos.push_back(temp);
+				}
 			}
 			| E TK_AND E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{	
-				// if ($1.tipo != "bool"){
-                //     yyerror("ERRO! Operação inválida");
-                // }
-                // if ($3.tipo != "bool"){
-                //     yyerror("ERRO! Operação inválida");
-                // }
-				// if($1.tipo != $3.tipo) 
+				if ($1.tipo != "bool"){
+                    yyerror("ERRO! Operação inválida");
+                }
+                if ($3.tipo != "bool"){
+                    yyerror("ERRO! Operação inválida");
+                }
+				if($1.tipo != $3.tipo) 
 				{
 					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
 					{
@@ -716,17 +821,28 @@ E 			: '('E')'
 				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
 					    " = " + castvar + " && " + $3.label + ";\n";
 					}
-				} 
+				} else {
+					$$.label = gentempcode();
+					$$.tipo = $1.tipo;
+					$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + // a = $1, b = $3, c = $$ 
+						" = " + $1.label + " && " + $3.label + ";\n";  // caracter = " < "
+					// Atualizar tipo da temporária com base nos tipos dos operandos
+					TIPO_SIMBOLO temp;
+					temp.nomeVariavel = $$.label;
+					temp.scope = escopototal;
+					temp.tipoVariavel = $$.tipo;
+					tabelaSimbolos.push_back(temp);
+				}
 			}
 			| E TK_OR E //PRECISA ADICIONAR NA TABELA E AJEITAR USE A FUNCAO addtabSimbolos()
 			{	
-				// if ($1.tipo != "bool"){
-                //     yyerror("ERRO! Operação inválida");
-                // }
-                // if ($3.tipo != "bool"){
-                //     yyerror("ERRO! Operação inválida");
-                // }
-				// if($1.tipo != $3.tipo) 
+				if ($1.tipo != "bool"){
+                    yyerror("ERRO! Operação inválida");
+                }
+                if ($3.tipo != "bool"){
+                    yyerror("ERRO! Operação inválida");
+                }
+				if($1.tipo != $3.tipo) 
 				{
 					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
 					{
@@ -746,13 +862,24 @@ E 			: '('E')'
 				        $$.traducao = $1.traducao + $3.traducao + "\t" + castvar + " = " + "(float)" + $1.label + ";\n" + "\t" + $$.label +
 					    " = " + castvar + " || " + $3.label + ";\n";
 					}
-				} 
+				} else {
+					$$.label = gentempcode();
+					$$.tipo = $1.tipo;
+					$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + // a = $1, b = $3, c = $$ 
+						" = " + $1.label + " || " + $3.label + ";\n";  // caracter = " < "
+					// Atualizar tipo da temporária com base nos tipos dos operandos
+					TIPO_SIMBOLO temp;
+					temp.nomeVariavel = $$.label;
+					temp.scope = escopototal;
+					temp.tipoVariavel = $$.tipo;
+					tabelaSimbolos.push_back(temp);
+				}
 			}
 			| TK_NOT E
 			{	
 				$$.label = gentempcode();
 				$$.traducao = $2.traducao + "\t" + $$.label +
-				" = ! " + $2.label + ";\n";
+				" = ! " + $2.label + ";\n"; 
 			}
 			| E TK_MAIS_MAIS // incremental ++
 			{

@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.5.1.  */
+/* A Bison parser, made by GNU Bison 3.8.2.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation,
    Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -31,8 +31,9 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
+/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
+   especially those whose name start with YY_ or yy_.  They are
+   private implementation details that can be changed or removed.  */
 
 #ifndef YY_YY_Y_TAB_H_INCLUDED
 # define YY_YY_Y_TAB_H_INCLUDED
@@ -44,55 +45,64 @@
 extern int yydebug;
 #endif
 
-/* Token type.  */
+/* Token kinds.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    TK_NUM = 258,
-    TK_REAL = 259,
-    TK_BOOL = 260,
-    TK_CHAR = 261,
-    TK_OP_REL = 262,
-    TK_STRING = 263,
-    _STRING = 264,
-    TK_MAIN = 265,
-    TK_ID = 266,
-    TK_TIPO_INT = 267,
-    TK_TIPO_FLOAT = 268,
-    TK_TIPO_CHAR = 269,
-    TK_TIPO_BOOL = 270,
-    TK_CAST_INT = 271,
-    TK_CAST_FLOAT = 272,
-    TK_TIPO_STRING = 273,
-    TK_FIM = 274,
-    TK_ERROR = 275,
-    TK_IG = 276,
-    TK_DIF = 277,
-    TK_MAIG = 278,
-    TK_MEIG = 279,
-    TK_MAIOR = 280,
-    TK_MENOR = 281,
-    TK_AND = 282,
-    TK_OR = 283,
-    TK_NOT = 284,
-    TK_MAIS_MAIS = 285,
-    TK_MENOS_MENOS = 286,
-    TK_IF = 287,
-    TK_ELSE_IF = 288,
-    TK_ELSE = 289,
-    TK_WHILE = 290,
-    TK_DO = 291,
-    TK_FOR = 292,
-    TK_SWITCH = 293,
-    TK_CASE = 294,
-    TK_BREAK = 295,
-    TK_DEFAULT = 296,
-    TK_CONTINUE = 297,
-    TK_RETURN = 298
+    YYEMPTY = -2,
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    TK_NUM = 258,                  /* TK_NUM  */
+    TK_REAL = 259,                 /* TK_REAL  */
+    TK_BOOL = 260,                 /* TK_BOOL  */
+    TK_CHAR = 261,                 /* TK_CHAR  */
+    TK_OP_REL = 262,               /* TK_OP_REL  */
+    TK_STRING = 263,               /* TK_STRING  */
+    _STRING = 264,                 /* _STRING  */
+    TK_MAIN = 265,                 /* TK_MAIN  */
+    TK_ID = 266,                   /* TK_ID  */
+    TK_TIPO_INT = 267,             /* TK_TIPO_INT  */
+    TK_TIPO_FLOAT = 268,           /* TK_TIPO_FLOAT  */
+    TK_TIPO_CHAR = 269,            /* TK_TIPO_CHAR  */
+    TK_TIPO_BOOL = 270,            /* TK_TIPO_BOOL  */
+    TK_CAST_INT = 271,             /* TK_CAST_INT  */
+    TK_CAST_FLOAT = 272,           /* TK_CAST_FLOAT  */
+    TK_TIPO_STRING = 273,          /* TK_TIPO_STRING  */
+    TK_FIM = 274,                  /* TK_FIM  */
+    TK_ERROR = 275,                /* TK_ERROR  */
+    TK_IG = 276,                   /* TK_IG  */
+    TK_DIF = 277,                  /* TK_DIF  */
+    TK_MAIG = 278,                 /* TK_MAIG  */
+    TK_MEIG = 279,                 /* TK_MEIG  */
+    TK_MAIOR = 280,                /* TK_MAIOR  */
+    TK_MENOR = 281,                /* TK_MENOR  */
+    TK_AND = 282,                  /* TK_AND  */
+    TK_OR = 283,                   /* TK_OR  */
+    TK_NOT = 284,                  /* TK_NOT  */
+    TK_MAIS_MAIS = 285,            /* TK_MAIS_MAIS  */
+    TK_MENOS_MENOS = 286,          /* TK_MENOS_MENOS  */
+    TK_IF = 287,                   /* TK_IF  */
+    TK_ELSE_IF = 288,              /* TK_ELSE_IF  */
+    TK_ELSE = 289,                 /* TK_ELSE  */
+    TK_WHILE = 290,                /* TK_WHILE  */
+    TK_DO = 291,                   /* TK_DO  */
+    TK_FOR = 292,                  /* TK_FOR  */
+    TK_SWITCH = 293,               /* TK_SWITCH  */
+    TK_CASE = 294,                 /* TK_CASE  */
+    TK_BREAK = 295,                /* TK_BREAK  */
+    TK_DEFAULT = 296,              /* TK_DEFAULT  */
+    TK_CONTINUE = 297,             /* TK_CONTINUE  */
+    TK_RETURN = 298                /* TK_RETURN  */
   };
+  typedef enum yytokentype yytoken_kind_t;
 #endif
-/* Tokens.  */
+/* Token kinds.  */
+#define YYEMPTY -2
+#define YYEOF 0
+#define YYerror 256
+#define YYUNDEF 257
 #define TK_NUM 258
 #define TK_REAL 259
 #define TK_BOOL 260
@@ -145,6 +155,8 @@ typedef int YYSTYPE;
 
 extern YYSTYPE yylval;
 
+
 int yyparse (void);
+
 
 #endif /* !YY_YY_Y_TAB_H_INCLUDED  */
