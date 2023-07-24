@@ -1,4 +1,8 @@
 int main()
 {   
-    
+    string a;
+    int b = 1;
+    float c = 1.0;
+    a = "stringa";
+    print(c);
 }

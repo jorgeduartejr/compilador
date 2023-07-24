@@ -20,6 +20,7 @@ typedef struct{
 	string nomeVariavel;
 	string tipoVariavel;
 	string nomeTemp;
+	string size = "";
 	stack<int> scope;
 } TIPO_SIMBOLO;
 
@@ -47,7 +48,7 @@ string printtabelaSimbolos()
 	string n = "";
 	for(int i = 0; i < tabelaSimbolos.size(); i++)
 	{
-		n += "\t" + tabelaSimbolos[i].tipoVariavel + "\t" + tabelaSimbolos[i].nomeTemp + ";\n";
+		n += "\t" + tabelaSimbolos[i].tipoVariavel + "\t" + tabelaSimbolos[i].nomeTemp  + tabelaSimbolos[i].size + ";\n";
 	}
 	return n;
 }
@@ -66,7 +67,7 @@ string printtabelaSimbolos()
 
 %token TK_NUM TK_REAL TK_BOOL TK_CHAR TK_OP_REL  TK_STRING _STRING
 %token TK_MAIN TK_ID TK_TIPO_INT TK_TIPO_FLOAT TK_TIPO_CHAR TK_TIPO_BOOL TK_CAST_INT TK_CAST_FLOAT TK_TIPO_STRING //TK_CAST_CHAR TK_CAST_BOOL
-%token TK_FIM TK_ERROR 
+%token TK_FIM TK_ERROR  TK_PRINT TK_SCAN
 %token TK_IG TK_DIF TK_MAIG TK_MEIG TK_MAIOR TK_MENOR TK_AND TK_OR TK_NOT TK_MAIS_MAIS TK_MENOS_MENOS TK_IF TK_ELSE_IF TK_ELSE TK_WHILE TK_DO TK_FOR TK_SWITCH TK_CASE TK_BREAK TK_DEFAULT TK_CONTINUE TK_RETURN
 
 %start S
@@ -417,8 +418,9 @@ COMANDO 	: E ';'
 				string a = '['+ std::to_string(str.length()-1)+']';
 				TIPO_SIMBOLO valor;
 				//string a = '['+ $3.label +']';
-				valor.nomeVariavel = $5.label;
-				valor.tipoVariavel = "char" + a;
+				valor.nomeVariavel = $2.label;
+				valor.tipoVariavel = "char";
+				valor.size = a;
 				valor.nomeTemp = gentempcode(); valor.scope = escopototal;
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
@@ -444,11 +446,45 @@ E 			: '('E')'
 			}
 			|TK_STRING
 			{
+				$$.label = $1.label;
 				$1.tipo = "string";
 				$$ = $1;
 			}
+			| TK_PRINT '('E')'
+			{
+				if($3.tipo == "string")
+				{
+                    $$.traducao = $3.traducao + "\t" + "print"+ "f("+  $3.label + ")"+ ";\n";
+				}
+				else
+				{
+				    switch($3.tipo[0])
+					{
+						case 'i':
+						$$.traducao = $3.traducao + "\t" + "print"+ "f("+ '%' + "d,"+ $3.label + ')'+ ";\n";
+						break;
+						case 'c':
+						$$.traducao = $3.traducao +"\t" + "print"+ "f("+ '%' + "c,"+ $3.label + ')'+ ";\n";
+						break;
+						case 'f':
+						$$.traducao = $3.traducao +"\t" + "print"+ "f("+ '%' + "f,"+ $3.label + ')'+ ";\n";
+						break;
+					}
+				}
+			}
             | E '+' E //vou colocar o tipo float como default
 			{
+				if($1.tipo == "char" || $1.tipo == "char*")
+				{
+					std::string str ($1.label);
+					std::string str2 ($3.label);
+				    string a = "char";
+					string temp = gentempcode();
+					$$.label = temp + '['+ std::to_string((str.length() + str2.length())*100)+']';
+				    addtabSimbolos( $$.label, a);
+                    $$.traducao = $3.traducao + "\t"+ temp + '=' + "strcat" + '(' + $1.label + " , " + $3.label + ')'  + ";\n";
+				}
+				else{
 				if($1.tipo != $3.tipo) //default = tipo float mas talvez precise mudar
 				{
 					if($1.tipo == "int" && $3.tipo == "float") 
@@ -475,7 +511,7 @@ E 			: '('E')'
 				addtabSimbolos( $$.label, $1.tipo);
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 					" = " + $1.label + " + " + $3.label + ";\n";
-				}
+				}}
 			}
 			| E '-' E
 			{

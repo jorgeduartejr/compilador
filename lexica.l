@@ -80,6 +80,10 @@ STRING \"(({LETRA}|{NUM}|{ESPACO}|[(){}[];,]|[+-/=%$#@!&¨<>,.;|^~`´?]|[éÉç�
 
 "string"    { return TK_TIPO_STRING; }
 
+"print"     { return TK_PRINT; }
+
+"scan"      { return TK_SCAN; }
+
 {STRING}    { yylval.label = yytext; return TK_STRING; }
 {NUM}		{ yylval.label = yytext; return TK_NUM; }
 {ID}		{ yylval.label = yytext; return TK_ID; }
