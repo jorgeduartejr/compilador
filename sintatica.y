@@ -21,6 +21,7 @@ typedef struct{
 	string tipoVariavel;
 	string nomeTemp;
 	string size = "";
+	string sobrepor = "";
 	stack<int> scope;
 } TIPO_SIMBOLO;
 
@@ -415,12 +416,11 @@ COMANDO 	: E ';'
 			| TK_TIPO_STRING TK_ID  '=' E ';'
 			{
 				std::string str ($4.label);
-				string a = '['+ std::to_string(str.length()-1)+']';
+				string a = std::to_string(str.length()-1);
 				TIPO_SIMBOLO valor;
 				//string a = '['+ $3.label +']';
 				valor.nomeVariavel = $2.label;
-				valor.tipoVariavel = "char";
-				valor.size = a;
+				valor.tipoVariavel = "char*";
 				valor.nomeTemp = gentempcode(); valor.scope = escopototal;
 				for(int i = 0; i < tabelaSimbolos.size(); i++)
 				{
@@ -435,7 +435,7 @@ COMANDO 	: E ';'
 				tabelaSimbolos.push_back(valor);
                 $2.label = valor.nomeTemp;
 				$2.tipo = valor.tipoVariavel;
-				$$.traducao = $4.traducao + "\t" + "strcpy" + '(' + $2.label + " , " + $4.label + ')'  + ";\n";
+				$$.traducao = $4.traducao + "\t" + $2.label + '=' + "malloc" + '(' + a + '*' + "sizeof(char*)" + ')' + ";\n" + "\t" + "strcpy" + '(' + $2.label + " , " + $4.label + ')'  + ";\n";
 				$$.label = "";
 			}
 			;
@@ -464,7 +464,7 @@ E 			: '('E')'
 						$$.traducao = $3.traducao + "\t" + "print"+ "f("+ '%' + "d,"+ $3.label + ')'+ ";\n";
 						break;
 						case 'c':
-						$$.traducao = $3.traducao +"\t" + "print"+ "f("+ '%' + "c,"+ $3.label + ')'+ ";\n";
+						$$.traducao = $3.traducao +"\t" + "print"+ "f("+ '%' + "s,"+ $3.label + ')'+ ";\n";
 						break;
 						case 'f':
 						$$.traducao = $3.traducao +"\t" + "print"+ "f("+ '%' + "f,"+ $3.label + ')'+ ";\n";
@@ -472,17 +472,108 @@ E 			: '('E')'
 					}
 				}
 			}
+			| TK_SCAN'('E')'
+			{
+				if($3.tipo == "char" || $3.tipo == "char*")
+				{
+					TIPO_SIMBOLO valor;
+				    valor.nomeVariavel = "";
+				    valor.tipoVariavel = "char*";
+				    valor.nomeTemp = gentempcode(); 
+					valor.scope = escopototal;
+					//valor.size = "[1000]";
+					TIPO_SIMBOLO valor2;
+				    valor2.nomeVariavel = "";
+				    valor2.tipoVariavel = "int";
+				    valor2.nomeTemp = gentempcode(); 
+					valor2.scope = escopototal;
+					$$.label = valor.nomeTemp;
+					$$.tipo = valor.tipoVariavel;
+				    tabelaSimbolos.push_back(valor);
+					tabelaSimbolos.push_back(valor2);
+					int i = 1;
+						string salvador1 = "";
+						string salvador2 = "";
+					while ($3.traducao[i] != '='){
+                            salvador1 += $3.traducao[i];
+							i++;
+						} 
+						i = i + 2;
+						while ($3.traducao[i] != ';'){
+                            salvador2 += $3.traducao[i];
+							i++;
+					}
+                    $$.traducao = $3.traducao +"\t" + "scanf"+ "("+ '%' + "s," + '&' + $3.label + ")" + ";\n" + "\t" + valor2.nomeTemp + '=' + '0' + ";\n" + "\t" +"definidor:" + "\n" + "\t"
+					 + "if(" + $3.label + '['+valor2.nomeTemp +']' + "!=" + '"' + '\\' + '0'+ '"' +')' + '{'+  valor2.nomeTemp + '=' + valor2.nomeTemp + '+' + '1' + ';' + "goto definidor;" + '}' + "\n" +
+					"\t" + $$.label + '=' + "malloc(" + valor2.nomeTemp + '*' + "sizeof(char)" + ')' + ";\n" + "\t" +"strcpy(" + $$.label + ',' + $3.label+')' + ";\n" + "\t" + salvador2 + '=' + "malloc(" + valor2.nomeTemp + '*' + "sizeof(char)" + ')' + ";\n" + "\t" +"strcpy(" + salvador2 + ',' + $$.label+')' + ";\n";
+				}
+				else
+				{
+				    switch($3.tipo[0])
+					{
+						case 'i':
+						{
+						TIPO_SIMBOLO valori;
+				        valori.nomeVariavel = "";
+				        valori.tipoVariavel = "int";
+				        valori.nomeTemp = gentempcode(); 
+					    valori.scope = escopototal;
+						tabelaSimbolos.push_back(valori);
+						$$.label = valori.nomeTemp;
+					    $$.tipo = valori.tipoVariavel;
+						int i = 1;
+						string salvador1 = "";
+						string salvador2 = "";
+						while ($3.traducao[i] != '='){
+                            salvador1 += $3.traducao[i];
+							i++;
+						} 
+						i++;
+						while ($3.traducao[i] != ';'){
+                            salvador2 += $3.traducao[i];
+							i++;
+						}
+						$$.traducao = $3.traducao + "\t" + "scan"+ "f("+ '%' + "d," + '&' + $3.label + ')'+ ";\n" + "\t" + salvador2 + ' ' + '=' + ' ' +salvador1 + ";\n";
+						break;
+						}
+						//case 'c':
+						//$$.traducao = $3.traducao +"\t" + "print"+ "f("+ '%' + "c,"+ $3.label + ')'+ ";\n";
+						//break;
+						case 'f':
+						{
+						TIPO_SIMBOLO valorf;
+				        valorf.nomeVariavel = "";
+				        valorf.tipoVariavel = "float";
+				        valorf.nomeTemp = gentempcode(); 
+					    valorf.scope = escopototal;
+						tabelaSimbolos.push_back(valorf);
+						$$.label = valorf.nomeTemp;
+					    $$.tipo = valorf.tipoVariavel;
+						int i = 1;
+						string salvador1 = "";
+						string salvador2 = "";
+						while ($3.traducao[i] != '='){
+                            salvador1 += $3.traducao[i];
+							i++;
+						} 
+						i++;
+						while ($3.traducao[i] != ';'){
+                            salvador2 += $3.traducao[i];
+							i++;
+						}
+						$$.traducao = $3.traducao + "\t" + "scan"+ "f("+ '%' + "f," + '&' + $3.label + ')'+ ";\n" + "\t" + salvador2 + ' ' + '=' + ' ' +salvador1 + ";\n";
+						break;
+						}
+					}
+				}
+			}
             | E '+' E //vou colocar o tipo float como default
 			{
 				if($1.tipo == "char" || $1.tipo == "char*")
 				{
-					std::string str ($1.label);
-					std::string str2 ($3.label);
-				    string a = "char";
-					string temp = gentempcode();
-					$$.label = temp + '['+ std::to_string((str.length() + str2.length())*100)+']';
-				    addtabSimbolos( $$.label, a);
-                    $$.traducao = $3.traducao + "\t"+ temp + '=' + "strcat" + '(' + $1.label + " , " + $3.label + ')'  + ";\n";
+					$$.label = gentempcode();
+				    addtabSimbolos( $$.label, $1.tipo);
+                    $$.traducao = $1.traducao + $3.traducao + "\t"+ $$.label + '='+ "malloc("+"sizeof("+$1.label +')'+ '+'+ "sizeof(" + $3.label +')'+')'+";\n"+ "\t" + $$.label + '=' + "strcat" + '(' + $1.label + " , " + $3.label + ')'  + ";\n";
 				}
 				else{
 				if($1.tipo != $3.tipo) //default = tipo float mas talvez precise mudar
@@ -612,6 +703,7 @@ E 			: '('E')'
                 //     yyerror("ERRO! Operação inválida");
                 // }
 				// if($1.tipo != $3.tipo) 
+				
 				{
 					if($1.tipo == "int" && $3.tipo == "float")  // mudar para a variavel final ser bool ao inves do tipo convertido
 					{
@@ -992,7 +1084,12 @@ E 			: '('E')'
 					$1.label = variavel.nomeTemp;
 					std::string criativo ($3.label);
 					string tamanho = std::to_string(criativo.length()-1); 
-                    $$.traducao = "\t" + $1.label + '=' + "malloc" + '(' + tamanho + '*' + "sizeof(char*)" + ')' + ";\n" + $1.traducao + $3.traducao + "\t" + "strcpy(" + $1.label + " , " + $3.label + ')' + ";\n";
+                    $$.traducao = "\t" + $1.label + '=' + "malloc" + '(' + tamanho + '*' + "sizeof(char)" + ')' + ";\n" + $1.traducao + $3.traducao + "\t" + "strcpy(" + $1.label + " , " + $3.label + ')' + ";\n";
+				}
+				else if($3.tipo == "char*")
+				{
+					$1.label = variavel.nomeTemp;
+                    $$.traducao = "\t" + $1.label + '=' + "malloc" + '(' + "sizeof(" + $3.label +')' + ')' + ";\n" + $1.traducao + $3.traducao + "\t" + "strcpy(" + $1.label + " , " + $3.label + ')' + ";\n";
 				}
 				else
 				{
@@ -1057,12 +1154,22 @@ E 			: '('E')'
 						yyerror("Variavel nao declarada");
 					}
 				}
+				else if(variavel.tipoVariavel == "char*")
+				{
+                    $1.label = variavel.nomeTemp;
+				    $$.tipo = variavel.tipoVariavel;
+				    $$.label = gentempcode();
+					addtabSimbolos($$.label, $$.tipo);
+					$$.traducao = "\t" + $$.label + '=' + "malloc(" + "sizeof(" + $1.label +')' + ')' + ";\n" + "\t" + $$.label + '=' + "strcpy(" + $$.label + ',' + $1.label + ')' + ";\n";
+				}
+				else{
                 $1.label = variavel.nomeTemp;
 				$$.tipo = variavel.tipoVariavel;
 				$$.label = gentempcode();
 				addtabSimbolos($$.label, $$.tipo);
 				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
 				}
+			  }
 			}	
 			;
 
