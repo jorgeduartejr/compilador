@@ -1,4 +1,4 @@
-# Compilador XGH
+# Compilador Simples
 
 Este é um compilador desenvolvido para a disciplina de Compiladores da UFRRJ. Ele é capaz de analisar e compilar um subconjunto de uma linguagem de programação fictícia chamada FOCA.
 
